@@ -319,3 +319,20 @@ document.addEventListener("click", (e) => {
   if (!btn) return;
   loadKashmirNews();
 });
+
+// Navigate to variety chart page when a price card is clicked
+document.addEventListener("click", (e) => {
+  const card = e.target.closest('.stock-card');
+  if(!card) return;
+  const section = card.closest('.stock-section');
+  if(!section) return;
+  const varietyName = card.querySelector('.stock-name')?.textContent.trim();
+  if(!varietyName) return;
+  // map section id to api mandi value using existing constant
+  const sectionId = section.id;
+  const found = MANDI_SECTIONS.find(m => m.id === sectionId);
+  if(!found) return;
+  const mandi = found.api; // already api alias (e.g., azadpur)
+  const url = `variety.html?mandi=${encodeURIComponent(mandi)}&variety=${encodeURIComponent(varietyName)}`;
+  window.open(url, '_blank');
+});
