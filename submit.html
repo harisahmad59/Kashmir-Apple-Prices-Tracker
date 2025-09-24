@@ -114,98 +114,19 @@
         <div class="section-head">
           <h2>Submit Market Prices</h2>
         </div>
-        <form id="price-form" class="price-form" autocomplete="off">
-          <div class="form-grid">
-            <label>
-              <span class="lbl">Your Name / Firm</span>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="e.g. Bashir Traders"
-              />
-            </label>
-            <label>
-              <span class="lbl">Mandi</span>
-              <select name="mandi" required>
-                <option value="Shopian">Shopian</option>
-                <option value="Srinagar">Srinagar</option>
-                <option value="Delhi (Azadpur)">Delhi (Azadpur)</option>
-                <option value="Mumbai (Vashi)">Mumbai (Vashi)</option>
-              </select>
-            </label>
-            <label>
-              <span class="lbl">Variety</span>
-              <select name="variety" required>
-                <option value="Delicious">Delicious</option>
-                <option value="American">American</option>
-                <option value="Kullu">Kullu</option>
-                <option value="Gala">Gala</option>
-                <option value="Ambri Kashmir">Ambri Kashmir</option>
-                <option value="Maharaji">Maharaji</option>
-                <option value="American Trel">American Trel</option>
-              </select>
-            </label>
-            <label>
-              <span class="lbl">Price (₹ / box)</span>
-              <input
-                type="number"
-                name="price"
-                min="0"
-                required
-                placeholder="e.g. 1450"
-              />
-            </label>
-            <label>
-              <span class="lbl">Change (₹)</span>
-              <input
-                type="number"
-                name="change"
-                required
-                placeholder="e.g. 40"
-              />
-            </label>
-            <label>
-              <span class="lbl">Change (%)</span>
-              <input
-                type="number"
-                name="changePct"
-                step="0.1"
-                required
-                placeholder="e.g. 2.8"
-              />
-            </label>
-            <label style="grid-column: 1/-1">
-              <span class="lbl">Notes</span>
-              <textarea
-                name="notes"
-                rows="20"
-                placeholder="Quality, demand, arrivals..."
-              ></textarea>
-            </label>
-          </div>
-          <div style="margin-top: 24px; display: flex; gap: 12px">
-            <button
-              type="submit"
-              class="ghost-btn"
-              style="background: #675bff; color: #fff; border-color: #675bff"
-            >
-              Submit
-            </button>
-            <button type="reset" class="ghost-btn">Reset</button>
-          </div>
-          <p
-            id="form-status"
-            style="
-              font-size: 13px;
-              color: #059669;
-              margin-top: 12px;
-              display: none;
-            "
-          >
-            Submitted. Thank you!
-          </p>
-        </form>
+        <div id="embedded-price-form" style="min-height: 500px">
+          <!-- Updated Visme Embedded Form (non full-page) -->
+          <div
+            class="visme_d"
+            data-title="Website Feedback Form"
+            data-url="p9ndnn6w-website-feedback-form"
+            data-domain="forms"
+            data-full-page="false"
+            data-min-height="500px"
+            data-form-id="146979"
+          ></div>
+          <script src="https://static-bundles.visme.co/forms/vismeforms-embed.js"></script>
+        </div>
       </section>
     </main>
     <footer class="site-footer">
@@ -253,20 +174,6 @@
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
-    <script>
-      const form = document.getElementById("price-form");
-      const statusEl = document.getElementById("form-status");
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        console.log("Submitted price data", data);
-        statusEl.style.display = "block";
-        statusEl.textContent = "Submitted. Thank you!";
-        form.reset();
-        setTimeout(() => {
-          statusEl.style.display = "none";
-        }, 4000);
-      });
-    </script>
+    <!-- Removed legacy manual form handling script; Visme handles submission -->
   </body>
 </html>

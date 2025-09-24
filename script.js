@@ -96,6 +96,19 @@ function updateMandiSection(sectionEl, rows) {
   rows.forEach((r) => {
     map[r.variety.toLowerCase()] = r;
   });
+  // Persist the entire rows array for this mandi (section) so variety page can use without refetch
+  const sectionId = sectionEl.id;
+  const mandiMeta = MANDI_SECTIONS.find((m) => m.id === sectionId);
+  if (mandiMeta && Array.isArray(rows) && rows.length) {
+    try {
+      sessionStorage.setItem(
+        "mandiRows:" + mandiMeta.api,
+        JSON.stringify(rows)
+      );
+    } catch (e) {
+      console.warn("Failed to store mandi rows for", mandiMeta.api, e);
+    }
+  }
   cards.forEach((card) => {
     const variety = card
       .querySelector(".stock-name")
@@ -322,17 +335,37 @@ document.addEventListener("click", (e) => {
 
 // Navigate to variety chart page when a price card is clicked
 document.addEventListener("click", (e) => {
-  const card = e.target.closest('.stock-card');
-  if(!card) return;
-  const section = card.closest('.stock-section');
-  if(!section) return;
-  const varietyName = card.querySelector('.stock-name')?.textContent.trim();
-  if(!varietyName) return;
+  const card = e.target.closest(".stock-card");
+  if (!card) return;
+  const section = card.closest(".stock-section");
+  if (!section) return;
+  const varietyName = card.querySelector(".stock-name")?.textContent.trim();
+  if (!varietyName) return;
   // map section id to api mandi value using existing constant
   const sectionId = section.id;
-  const found = MANDI_SECTIONS.find(m => m.id === sectionId);
-  if(!found) return;
+  const found = MANDI_SECTIONS.find((m) => m.id === sectionId);
+  if (!found) return;
   const mandi = found.api; // already api alias (e.g., azadpur)
-  const url = `variety.html?mandi=${encodeURIComponent(mandi)}&variety=${encodeURIComponent(varietyName)}`;
-  window.open(url, '_blank');
+  // Extract displayed price (strip currency and commas)
+  const priceText = card
+    .querySelector(".price")
+    ?.textContent.replace(/[^0-9.]/g, "");
+  const changeText = card.querySelector(".change")?.textContent.trim() || "";
+  try {
+    const payload = {
+      mandi,
+      variety: varietyName,
+      priceBox: priceText ? Number(priceText) : null,
+      changeText,
+      ts: Date.now(),
+    };
+    sessionStorage.setItem("clickedVariety", JSON.stringify(payload));
+  } catch (err) {
+    console.warn("Failed to store clickedVariety", err);
+  }
+  const url = `variety.html?mandi=${encodeURIComponent(
+    mandi
+  )}&variety=${encodeURIComponent(varietyName)}`;
+  // Use same tab navigation so sessionStorage remains accessible
+  window.location.href = url;
 });

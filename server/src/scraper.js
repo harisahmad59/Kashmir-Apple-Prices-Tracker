@@ -64,6 +64,7 @@ async function scrapeCommodityOnline(mandi) {
   try {
     const { data } = await axios.get(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
+      timeout: 7000,
     });
     const $ = load(data);
     const rows = [];
@@ -296,6 +297,7 @@ async function scrapeNapanta(mandi) {
   try {
     const { data } = await axios.get(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
+      timeout: 6000,
     });
     const $ = load(data);
     const rows = [];

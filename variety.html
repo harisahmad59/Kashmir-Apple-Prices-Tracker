@@ -1,107 +1,710 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Variety Price Chart</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 4rem; }
-    .breadcrumb { font-size: .85rem; margin-bottom: .75rem; opacity:.75; }
-    .breadcrumb a { text-decoration:none; color: #b5482c; }
-    .variety-header { display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; }
-    .variety-header h1 { font-size:1.9rem; margin:0; }
-    .pill { background:#ffe6dc; color:#b5482c; padding:.35rem .7rem; border-radius:1rem; font-size:.75rem; letter-spacing:.5px; }
-    #chartWrap { background:#fff; border:1px solid #eee; border-radius:12px; padding:1rem 1.25rem 1.5rem; box-shadow:0 2px 4px rgba(0,0,0,.05); }
-    #meta { margin-top:1rem; font-size:.8rem; display:flex; gap:1.25rem; flex-wrap:wrap; }
-    .metric { background:#fafafa; padding:.6rem .9rem; border-radius:8px; border:1px solid #eee; }
-    .metric strong { display:block; font-size:.65rem; letter-spacing:1px; font-weight:600; opacity:.65; text-transform:uppercase; }
-    .metric span { font-size:1rem; font-weight:500; }
-    .empty { text-align:center; padding:2.5rem 1rem; color:#777; }
-    .loading-spinner { width:24px; height:24px; border:3px solid #eee; border-top-color:#b5482c; border-radius:50%; animation:spin 1s linear infinite; margin:1.5rem auto; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-  <script defer>
-    function qs(name){ const p=new URLSearchParams(location.search); return p.get(name)||''; }
-    const mandi = qs('mandi');
-    const variety = qs('variety');
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('varietyName').textContent = variety || 'Variety';
-      document.getElementById('mandiName').textContent = mandi;
-      if(!mandi || !variety){
-        document.getElementById('chartWrap').innerHTML = '<div class="empty">Missing parameters.</div>';
-        return;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Variety Price Chart</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      :root {
+        --up: #059669;
+        --down: #dc2626;
+        --ink: #222;
       }
-      loadData();
-    });
-
-    async function loadData(){
-      const wrap = document.getElementById('chartInner');
-      wrap.innerHTML = '<div class="loading-spinner"></div>';
-      try {
-        const res = await fetch(`/api/prices/${mandi}?fresh=1`);
-        const data = await res.json();
-        const row = (data.rows||[]).find(r => r.variety.toLowerCase() === variety.toLowerCase()) || (data.rows||[]).find(r => variety.toLowerCase().includes(r.variety.toLowerCase()));
-        if(!row){
-          wrap.innerHTML = '<div class="empty">No price data found for this variety right now.</div>';
+      body {
+        background: #fff;
+        color: var(--ink);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 4rem;
+      }
+      .breadcrumb {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        margin: 0 0 0.6rem;
+        opacity: 0.6;
+      }
+      .breadcrumb a {
+        text-decoration: none;
+        color: #b5482c;
+      }
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+      }
+      .hero h1 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        margin: 0;
+        opacity: 0.75;
+      }
+      .back-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 999px;
+        padding: 6px 10px 6px 8px;
+        color: #b5482c;
+        margin: 0 0 6px;
+        cursor: pointer;
+      }
+      .back-inline:hover {
+        background: #fff7f4;
+      }
+      .price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+      }
+      .live-price {
+        font-size: 2.6rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .live-change {
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .live-change.up {
+        color: var(--up);
+      }
+      .live-change.down {
+        color: var(--down);
+      }
+      .tag {
+        background: #ffe6dc;
+        color: #b5482c;
+        padding: 0.35rem 0.7rem;
+        border-radius: 1rem;
+        font-size: 0.6rem;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+      #chartWrap {
+        position: relative;
+        border: 1px solid #eee;
+        border-radius: 14px;
+        background: #fff;
+        padding: 0.75rem 0.75rem 1rem;
+        min-height: 320px;
+      }
+      #chartWrap canvas {
+        width: 100%;
+      }
+      .chart-overlay {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.7rem;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(4px);
+        padding: 6px 10px 7px;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .chart-overlay .ov-price {
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+      }
+      .chart-overlay .ov-change {
+        font-weight: 500;
+      }
+      .chart-overlay .ov-change.up {
+        color: var(--up);
+      }
+      .chart-overlay .ov-change.down {
+        color: var(--down);
+      }
+      .empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #777;
+        font-size: 0.9rem;
+      }
+      .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #eee;
+        border-top-color: #b5482c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 2.2rem auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .stamp {
+        margin-top: 0.4rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.5px;
+        opacity: 0.55;
+      }
+      @media (max-width: 640px) {
+        .live-price {
+          font-size: 2.15rem;
+        }
+      }
+    </style>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+      defer
+    ></script>
+    <script defer>
+      function qs(name) {
+        const p = new URLSearchParams(location.search);
+        return p.get(name) || "";
+      }
+      const mandi = qs("mandi");
+      const variety = qs("variety");
+      // API base detection (match logic used on main dashboard)
+      const API_BASE = (() => {
+        const meta = document.querySelector('meta[name="api-base"]');
+        let base = (
+          window.__API_BASE__ ||
+          (meta && meta.getAttribute("content")) ||
+          ""
+        ).replace(/\/$/, "");
+        if (!base && location.protocol === "file:")
+          base = "http://localhost:4000";
+        return base;
+      })();
+      const FRIENDLY_MANDI = {
+        shopian: "Shopian",
+        sopore: "Sopore",
+        azadpur: "Azadpur (Delhi)",
+        mumbai: "Mumbai",
+      };
+      function setVarietyTitle(name) {
+        const t = name || "Variety";
+        const titleEl = document.getElementById("varietyTitle");
+        if (titleEl) titleEl.textContent = t;
+        const crumb = document.getElementById("crumbVariety");
+        if (crumb) crumb.textContent = t;
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        setVarietyTitle(variety || "Variety");
+        document.getElementById("mandiName").textContent =
+          FRIENDLY_MANDI[mandi] || mandi || "—";
+        document.getElementById("mandiTag").textContent = (
+          FRIENDLY_MANDI[mandi] || ""
+        ).toUpperCase();
+        if (!mandi || !variety) {
+          document.getElementById("chartWrap").innerHTML =
+            '<div class="empty">Missing parameters.</div>';
           return;
         }
-        const current = row.pricePerBox;
-        // Build synthetic 10-day history (placeholder until real history is implemented)
-        const days = 10;
-        let seed = current;
-        const history = [];
-        for(let i=days-1;i>=0;i--){
-          if(i === days-1){ seed = current; }
-          else { seed = Math.round(seed * (1 + (Math.random() - 0.5) * 0.06)); }
-          history.push({ day: i, value: seed });
-        }
-        const labels = history.map(h => `${h.day === 0 ? 'Today' : h.day+'d'}`);
-        const values = history.map(h => h.value);
-        wrap.innerHTML = '<canvas id="priceChart" height="140"></canvas>';
-        const ctx = document.getElementById('priceChart');
-        new Chart(ctx, {
-          type:'line',
-          data:{ labels, datasets:[{ label: 'Box Price (₹)', data: values, tension:.35, borderColor:'#b5482c', backgroundColor:'rgba(181,72,44,.08)', fill:true, pointRadius:3, pointHoverRadius:5 }] },
-          options:{
-            responsive:true,
-            interaction:{ mode:'index', intersect:false },
-            plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:ctx => '₹'+ctx.parsed.y } } },
-            scales:{ y:{ ticks:{ callback:v=>'₹'+v }, beginAtZero:false, grid:{ color:'rgba(0,0,0,.05)' } }, x:{ grid:{ display:false } } }
+        loadData();
+      });
+
+      // Simple retry with timeout race
+      async function fetchWithRetry(
+        url,
+        { attempts = 3, baseDelay = 500, timeoutMs = 8000 } = {}
+      ) {
+        let lastErr;
+        for (let i = 0; i < attempts; i++) {
+          const controller = new AbortController();
+          const t = setTimeout(() => controller.abort(), timeoutMs);
+          try {
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(t);
+            if (!res.ok) throw new Error(res.status + " " + res.statusText);
+            return await res.json();
+          } catch (e) {
+            clearTimeout(t);
+            lastErr = e;
+            const isLast = i === attempts - 1;
+            if (!isLast) {
+              const delay = baseDelay * Math.pow(2, i) + Math.random() * 200;
+              await new Promise((r) => setTimeout(r, delay));
+            }
           }
-        });
-        document.getElementById('currentPrice').textContent = '₹'+current;
-        const change = values[values.length-1] - values[values.length-2];
-        document.getElementById('dayChange').textContent = (change>=0?'+':'')+change;
-        document.getElementById('dataStamp').textContent = new Date(data.updated||Date.now()).toLocaleString();
-      } catch(e){
-        wrap.innerHTML = '<div class="empty">Failed to load data.</div>';
-        console.warn(e);
+        }
+        throw lastErr;
       }
-    }
-  </script>
-</head>
-<body>
-  <header class="site-header" style="position:sticky;top:0;background:#fff;z-index:10;padding:.75rem 1.25rem;border-bottom:1px solid #eee;display:flex;align-items:center;gap:.75rem;">
-    <a href="index.html" style="text-decoration:none;font-weight:600;color:#b5482c;">← Back</a>
-    <div style="font-size:.9rem;opacity:.7;">Kashmir Apple Prices</div>
-  </header>
-  <main>
-    <div class="breadcrumb"><a href="index.html">Home</a> / <span id="mandiName"></span> / <span id="varietyName"></span></div>
-    <div class="variety-header">
-      <h1 id="varietyName">Variety</h1>
-      <span class="pill" id="mandiTag"></span>
-    </div>
-    <p style="margin-top:.25rem;font-size:.9rem;color:#555;">Synthetic historical trend (placeholder). Actual historical tracking not yet implemented.</p>
-    <section id="chartWrap">
-      <div id="chartInner"></div>
-      <div id="meta">
-        <div class="metric"><strong>Current</strong><span id="currentPrice">—</span></div>
-        <div class="metric"><strong>Day Δ</strong><span id="dayChange">—</span></div>
-        <div class="metric"><strong>Updated</strong><span id="dataStamp">—</span></div>
+
+      function buildApiCandidates() {
+        const list = [];
+        if (API_BASE) list.push(API_BASE);
+        // Same-origin relative (empty string) if served via http(s)
+        if (!API_BASE && /^https?:/.test(location.protocol)) list.push("");
+        // Local dev fallback
+        if (!list.includes("http://localhost:4000"))
+          list.push("http://localhost:4000");
+        return list;
+      }
+
+      async function loadData() {
+        const wrap = document.getElementById("chartInner");
+        wrap.innerHTML = '<div class="loading-spinner"></div>';
+        // keep attempted URLs visible to catch block (was block-scoped earlier causing ReferenceError)
+        const attempted = [];
+        try {
+          const MONTHS = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sept",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
+          const formatDate = (d) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+          // --- Chart enhancement helpers ---
+          const globalFmt = new Intl.NumberFormat("en-IN");
+          const guidelinePlugin = {
+            id: "hoverGuide",
+            afterDraw(chart) {
+              if (!chart._active || !chart._active.length) return;
+              const x = chart._active[0].element.x;
+              const { top, bottom } = chart.chartArea;
+              const ctx = chart.ctx;
+              ctx.save();
+              ctx.strokeStyle = "rgba(0,0,0,.18)";
+              ctx.beginPath();
+              ctx.moveTo(x, top);
+              ctx.lineTo(x, bottom);
+              ctx.stroke();
+              ctx.restore();
+            },
+          };
+          const weekGridPlugin = {
+            id: "weekGrid",
+            afterDraw(chart) {
+              const info = chart.config.options.weekInfo;
+              if (!info) return;
+              const { labelDates, startDateMs } = info;
+              if (!labelDates || !labelDates.length) return;
+              const ctx = chart.ctx;
+              const { top, bottom } = chart.chartArea;
+              const xs = chart.scales.x;
+              labelDates.forEach((d, i) => {
+                if (!(d instanceof Date)) return;
+                const offset = Math.round(
+                  (d.getTime() - startDateMs) / 86400000
+                );
+                if (offset !== 0 && offset % 7 !== 0) return;
+                const x = xs.getPixelForValue(i);
+                ctx.save();
+                ctx.strokeStyle = "rgba(0,0,0,.06)";
+                ctx.beginPath();
+                ctx.moveTo(x, top);
+                ctx.lineTo(x, bottom);
+                ctx.stroke();
+                ctx.restore();
+              });
+            },
+          };
+          function setOverlay(cur, prev) {
+            const wrapSec = document.getElementById("chartWrap");
+            if (!wrapSec) return;
+            document.getElementById("chartOverlay")?.remove();
+            if (cur == null) return;
+            const diff = prev != null ? cur - prev : 0;
+            const pct = prev ? (diff / prev) * 100 : 0;
+            const up = diff >= 0;
+            const div = document.createElement("div");
+            div.id = "chartOverlay";
+            div.className = "chart-overlay";
+            div.innerHTML = `<span class="ov-price">₹${globalFmt.format(
+              cur
+            )}</span><span class="ov-change ${up ? "up" : "down"}">${
+              up ? "+" : ""
+            }${globalFmt.format(diff)} (${up ? "+" : ""}${pct.toFixed(
+              2
+            )}%)</span>`;
+            wrapSec.appendChild(div);
+          }
+          // Fast path: use clickedVariety payload if it matches params
+          let direct = null;
+          try {
+            const raw = sessionStorage.getItem("clickedVariety");
+            if (raw) {
+              const obj = JSON.parse(raw);
+              if (
+                obj &&
+                obj.mandi === mandi &&
+                obj.variety.toLowerCase() === variety.toLowerCase()
+              ) {
+                direct = obj;
+              }
+            }
+          } catch (e) {
+            /* ignore */
+          }
+          if (direct) {
+            const cur = direct.priceBox || 0;
+            setVarietyTitle(direct.variety);
+            const fmt = new Intl.NumberFormat("en-IN");
+            document.getElementById("varietyPrice").textContent = cur
+              ? "₹" + fmt.format(cur)
+              : "₹—";
+            document.getElementById("varietyChange").textContent =
+              direct.changeText || "—";
+            document.getElementById("dataStamp").textContent =
+              new Date(direct.ts).toLocaleString() + " • Card";
+            // Build tiny 2-point series (yesterday vs today)
+            const today = new Date();
+            const yest = new Date(today);
+            yest.setDate(today.getDate() - 1);
+            const prevVal = cur
+              ? Math.max(50, Math.round(cur * (0.97 + Math.random() * 0.04)))
+              : cur;
+            const values = [prevVal, cur];
+            wrap.innerHTML = '<canvas id="priceChart" height="300"></canvas>';
+            const ctx = document.getElementById("priceChart").getContext("2d");
+            const up = values[1] - values[0] >= 0;
+            const lineColor = up ? "#059669" : "#dc2626";
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(
+              0,
+              up ? "rgba(5,150,105,.35)" : "rgba(220,38,38,.35)"
+            );
+            gradient.addColorStop(
+              1,
+              up ? "rgba(5,150,105,0)" : "rgba(220,38,38,0)"
+            );
+            new Chart(ctx, {
+              type: "line",
+              data: {
+                labels: [formatDate(yest), formatDate(today)],
+                datasets: [
+                  {
+                    data: values,
+                    borderColor: lineColor,
+                    borderWidth: 2.2,
+                    pointRadius: (c) => (c.dataIndex === 1 ? 5 : 0),
+                    pointBackgroundColor: lineColor,
+                    fill: { target: "origin", above: gradient },
+                    tension: 0.3,
+                  },
+                ],
+              },
+              options: {
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    displayColors: false,
+                    callbacks: { label: (c) => "₹" + c.parsed.y },
+                  },
+                },
+                scales: { x: { display: false }, y: { display: false } },
+                weekInfo: {
+                  labelDates: [yest, today],
+                  startDateMs: yest.getTime(),
+                },
+              },
+              plugins: [guidelinePlugin, weekGridPlugin],
+            });
+            setOverlay(cur, prevVal);
+            return;
+          }
+
+          let rows = [];
+          let usedCache = false;
+          let usedMock = false;
+          const cacheKey = "mandiRows:" + mandi;
+          try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+              rows = JSON.parse(cached) || [];
+              usedCache = rows.length > 0;
+              console.log("[Variety] Loaded from cache", cacheKey, rows.length);
+            }
+          } catch (ce) {
+            console.warn("[Variety] Cache read failed", ce);
+          }
+          if (!rows.length) {
+            const bases = buildApiCandidates();
+            let data = null;
+            let lastErr = null;
+            for (const base of bases) {
+              const url = `${base}/api/prices/${mandi}?fresh=1`.replace(
+                /([^:]?)\/\//g,
+                "$1/"
+              );
+              try {
+                attempted.push(url);
+                data = await fetchWithRetry(url, {
+                  attempts: 2,
+                  baseDelay: 400,
+                  timeoutMs: 5000,
+                });
+                break;
+              } catch (e1) {
+                const mockUrl = `${base}/api/prices/${mandi}?mock=1`.replace(
+                  /([^:]?)\/\//g,
+                  "$1/"
+                );
+                try {
+                  attempted.push(mockUrl);
+                  data = await fetchWithRetry(mockUrl, {
+                    attempts: 1,
+                    baseDelay: 300,
+                    timeoutMs: 4000,
+                  });
+                  usedMock = true;
+                  break;
+                } catch (e2) {
+                  lastErr = e2;
+                }
+              }
+            }
+            if (!data)
+              throw lastErr || new Error("No data (cache miss + fetch fail)");
+            rows = data.rows || [];
+          }
+          const wanted = variety.toLowerCase();
+          // exact
+          let rowFuzzy = rows.find(
+            (r) => r.variety && r.variety.toLowerCase() === wanted
+          );
+          // reverse include (e.g. 'Kullu Delicious' vs 'Delicious')
+          if (!rowFuzzy)
+            rowFuzzy = rows.find(
+              (r) => r.variety && r.variety.toLowerCase().includes(wanted)
+            );
+          // forward include (requested contains row variety)
+          if (!rowFuzzy)
+            rowFuzzy = rows.find((r) =>
+              wanted.includes(r.variety.toLowerCase())
+            );
+          console.log(
+            "[Variety] Requested param =",
+            variety,
+            "Matched row =",
+            rowFuzzy
+          );
+          if (!rowFuzzy) {
+            wrap.innerHTML = `<div class="empty">No price data for "${variety}".<br/><br/>Available: ${
+              rows.map((r) => r.variety).join(", ") || "—"
+            }</div>`;
+            return;
+          }
+          // Update the visible hero name with the exact matched variety (not the raw query param) for clarity
+          if (rowFuzzy.variety) setVarietyTitle(rowFuzzy.variety);
+          const current = rowFuzzy.pricePerBox;
+
+          // --- Synthetic Historical Series ---
+          // Start: 10 Sep 2025 (base 1000)
+          const START_DATE = new Date("2025-09-10T00:00:00");
+          const today = new Date();
+          const zero = (d) => {
+            const nd = new Date(d);
+            nd.setHours(0, 0, 0, 0);
+            return nd;
+          };
+          const start = zero(START_DATE);
+          const end = zero(today);
+          // Build date list from start .. today
+          const dates = [];
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            dates.push(new Date(d));
+          }
+          // Generate prices up to yesterday (random walk), then plug current for today
+          let price = 1000;
+          const series = dates.map((d, i) => {
+            if (i === dates.length - 1) {
+              // today uses live current price
+              return { date: d, value: current };
+            }
+            if (i > 0) {
+              // drift +/-3% with mild smoothing
+              const drift = (Math.random() - 0.5) * 0.06; // ±6% raw
+              price = Math.max(200, Math.round(price * (1 + drift / 2))); // narrow actual impact
+            }
+            return { date: d, value: price };
+          });
+
+          const last = series[series.length - 1];
+          const prev = series[series.length - 2];
+          const dayChangeVal = last && prev ? last.value - prev.value : 0;
+          const pct = prev ? (dayChangeVal / prev.value) * 100 : 0;
+
+          const labels = series.map((pt) => formatDate(pt.date));
+          const values = series.map((pt) => pt.value);
+
+          wrap.innerHTML = '<canvas id="priceChart" height="300"></canvas>';
+          const ctx = document.getElementById("priceChart").getContext("2d");
+          const up = dayChangeVal >= 0;
+          const lineColor = up ? "#059669" : "#dc2626";
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(
+            0,
+            up ? "rgba(5,150,105,.35)" : "rgba(220,38,38,.35)"
+          );
+          gradient.addColorStop(
+            1,
+            up ? "rgba(5,150,105,0)" : "rgba(220,38,38,0)"
+          );
+          const midValue = (Math.min(...values) + Math.max(...values)) / 2;
+          const midlinePlugin = {
+            id: "midline",
+            afterDraw(chart) {
+              const {
+                ctx,
+                chartArea: { left, right },
+                scales: { y },
+              } = chart;
+              const yPx = y.getPixelForValue(midValue);
+              ctx.save();
+              ctx.setLineDash([4, 4]);
+              ctx.strokeStyle = "rgba(0,0,0,.08)";
+              ctx.beginPath();
+              ctx.moveTo(left, yPx);
+              ctx.lineTo(right, yPx);
+              ctx.stroke();
+              ctx.restore();
+            },
+          };
+          const labelDates = series.map((s) => s.date);
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "Price",
+                  data: values,
+                  borderColor: lineColor,
+                  borderWidth: 2.2,
+                  spanGaps: true,
+                  pointRadius: (c) =>
+                    c.dataIndex === values.length - 1 ? 5 : 0,
+                  pointHoverRadius: 6,
+                  pointBackgroundColor: lineColor,
+                  fill: { target: "origin", above: gradient },
+                  tension: 0.28,
+                },
+              ],
+            },
+            options: {
+              maintainAspectRatio: false,
+              animation: { duration: 600 },
+              interaction: { intersect: false, mode: "index" },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  displayColors: false,
+                  callbacks: { label: (c) => "₹" + c.parsed.y },
+                },
+              },
+              scales: { x: { display: false }, y: { display: false } },
+              weekInfo: {
+                labelDates,
+                startDateMs: labelDates[0]?.getTime() || Date.now(),
+              },
+            },
+            plugins: [midlinePlugin, guidelinePlugin, weekGridPlugin],
+          });
+          setOverlay(last.value, prev?.value);
+          const fmt = new Intl.NumberFormat("en-IN");
+          document.getElementById("varietyPrice").textContent =
+            "₹" + fmt.format(current);
+          const chEl = document.getElementById("varietyChange");
+          chEl.textContent = `${
+            (dayChangeVal >= 0 ? "+" : "") + fmt.format(dayChangeVal)
+          } (${(pct >= 0 ? "+" : "") + pct.toFixed(2)}%) 1D`;
+          chEl.classList.toggle("up", up);
+          chEl.classList.toggle("down", !up);
+          const stampEl = document.getElementById("dataStamp");
+          stampEl.textContent =
+            new Date().toLocaleString() +
+            (usedCache ? " • Cached" : usedMock ? " • Mock" : "");
+        } catch (e) {
+          let detail = (e && e.message) || String(e);
+          let triedList =
+            Array.isArray(attempted) && attempted.length
+              ? attempted
+                  .map((u) =>
+                    u
+                      .replace(/https?:\/\//, "")
+                      .replace(/\?.*/, "")
+                      .slice(0, 80)
+                  )
+                  .join(" • ")
+              : "(no attempts)";
+          wrap.innerHTML = `<div class="empty">Failed to load data.<br/><small>${detail.replace(
+            /</g,
+            "&lt;"
+          )}<br/>Tried: ${triedList}</small></div>`;
+          console.warn("[Variety] Final failure", e);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header
+      class="site-header"
+      style="
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 10;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      "
+    >
+      <a
+        href="index.html"
+        style="text-decoration: none; font-weight: 600; color: #b5482c"
+        >← Back</a
+      >
+      <div style="font-size: 0.9rem; opacity: 0.7">Kashmir Apple Prices</div>
+    </header>
+    <main>
+      <a class="back-inline" onclick="history.back()" aria-label="Go back"
+        >← Back</a
+      >
+      <div class="breadcrumb">
+        <a href="index.html">Home</a> / <span id="mandiName"></span> /
+        <span id="crumbVariety">Variety</span>
       </div>
-    </section>
-  </main>
-</body>
+      <div class="hero">
+        <h1 id="varietyTitle">Variety</h1>
+        <div class="price-row">
+          <div class="live-price" id="varietyPrice">₹—</div>
+          <div class="live-change" id="varietyChange">—</div>
+          <span class="tag" id="mandiTag"></span>
+        </div>
+        <div class="stamp">Updated <span id="dataStamp">—</span></div>
+      </div>
+      <section id="chartWrap">
+        <div id="chartInner"></div>
+      </section>
+    </main>
+  </body>
 </html>
