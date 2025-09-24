@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kashmir Apple Prices</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="nav-bar" role="navigation" aria-label="Primary">
+        <button
+          class="mobile-toggle"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="brand" aria-label="Home">
+          <span class="brand-icon" aria-hidden="true">
+            <img src="Assets/logo.svg" alt="Kashmir Apple Prices Logo" />
+          </span>
+          <span class="brand-text">Kashmir Apple Prices</span>
+        </a>
+        <ul class="menu" id="primary-menu">
+          <li><a class="nav-link active" href="index.html">Home</a></li>
+          <li><a class="nav-link" href="submit.html">Submit Your Prices</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button
+            class="ghost-btn"
+            type="button"
+            aria-label="Open trading terminal"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="14" rx="2" />
+                <path d="M8 20h8" />
+                <path d="M12 4v16" />
+              </svg>
+            </span>
+            <span>Terminal</span>
+          </button>
+          <a
+            class="outline-btn external"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Truck Rental
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              aria-hidden="true"
+              class="ext"
+            >
+              <path
+                fill="currentColor"
+                d="M5 5h6v2H7v10h10v-4h2v6H5V5zm8-2h8v8h-2V6.414l-9.293 9.293-1.414-1.414L17.586 5H13V3z"
+              />
+            </svg>
+          </a>
+          <button class="icon-btn" aria-label="Search">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
+          <button class="icon-btn" aria-label="Notifications">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16l-2-2Z" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <button class="avatar" aria-label="Account menu">
+            <img src="Assets\user.PNG" alt="User avatar" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <!-- Shopian Mandi Section -->
+      <section class="stock-section" id="shopian-mandi">
+        <div class="section-head">
+          <h2>Shopian Mandi</h2>
+        </div>
+        <div class="stock-grid">
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>DL</span></div>
+            <h3 class="stock-name">Delicious</h3>
+            <p class="price">₹1,300</p>
+            <p class="change up">+50 (2.5%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>AM</span></div>
+            <h3 class="stock-name">American</h3>
+            <p class="price">₹1,410</p>
+            <p class="change up">+30 (2.2%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>KU</span></div>
+            <h3 class="stock-name">Kullu</h3>
+            <p class="price">₹1,340</p>
+            <p class="change down">-20 (1.5%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>GA</span></div>
+            <h3 class="stock-name">Gala</h3>
+            <p class="price">₹1,250</p>
+            <p class="change up">+40 (3.3%)</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Sopore Mandi Section (replaces Srinagar) -->
+      <section class="stock-section" id="sopore-mandi">
+        <div class="section-head">
+          <h2>Sopore Mandi</h2>
+        </div>
+        <div class="stock-grid">
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>DL</span></div>
+            <h3 class="stock-name">Delicious</h3>
+            <p class="price">₹1,320</p>
+            <p class="change up">+18 (1.4%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>AM</span></div>
+            <h3 class="stock-name">American</h3>
+            <p class="price">₹1,425</p>
+            <p class="change up">+12 (0.8%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>KU</span></div>
+            <h3 class="stock-name">Kullu</h3>
+            <p class="price">₹1,455</p>
+            <p class="change down">-12 (0.8%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>GA</span></div>
+            <h3 class="stock-name">Gala</h3>
+            <p class="price">₹1,275</p>
+            <p class="change down">-10 (0.7%)</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Delhi Mandi Section -->
+      <section class="stock-section" id="delhi-mandi">
+        <div class="section-head">
+          <h2>Delhi Mandi (Azadpur)</h2>
+        </div>
+        <div class="stock-grid">
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>DL</span></div>
+            <h3 class="stock-name">Delicious</h3>
+            <p class="price">₹1,480</p>
+            <p class="change up">+25 (1.7%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>AM</span></div>
+            <h3 class="stock-name">American</h3>
+            <p class="price">₹1,560</p>
+            <p class="change up">+40 (2.6%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>KU</span></div>
+            <h3 class="stock-name">Kullu</h3>
+            <p class="price">₹1,620</p>
+            <p class="change down">-30 (1.8%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>GA</span></div>
+            <h3 class="stock-name">Gala</h3>
+            <p class="price">₹1,350</p>
+            <p class="change down">-20 (1.5%)</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Mumbai Mandi Section -->
+      <section class="stock-section" id="mumbai-mandi">
+        <div class="section-head">
+          <h2>Mumbai Mandi (Vashi)</h2>
+        </div>
+        <div class="stock-grid">
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>DL</span></div>
+            <h3 class="stock-name">Delicious</h3>
+            <p class="price">₹1,520</p>
+            <p class="change up">+30 (2.0%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>AM</span></div>
+            <h3 class="stock-name">American</h3>
+            <p class="price">₹1,600</p>
+            <p class="change up">+50 (3.2%)</p>
+          </article>
+          <article class="stock-card down">
+            <div class="logo" aria-hidden="true"><span>KU</span></div>
+            <h3 class="stock-name">Kullu</h3>
+            <p class="price">₹1,660</p>
+            <p class="change down">-25 (1.5%)</p>
+          </article>
+          <article class="stock-card up">
+            <div class="logo" aria-hidden="true"><span>GA</span></div>
+            <h3 class="stock-name">Gala</h3>
+            <p class="price">₹1,380</p>
+            <p class="change up">+35 (2.6%)</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="varieties-section" id="apple-varieties">
+        <h2>Market Arrivals & Demand (Boxes)</h2>
+        <div
+          class="varieties-card"
+          role="table"
+          aria-label="Apple varieties trend"
+        >
+          <div class="var-row head" role="row">
+            <div class="col variety-col" role="columnheader">Variety</div>
+            <div class="col trend-col" role="columnheader">Supply / Demand</div>
+            <div class="col change-col" role="columnheader">
+              1D price change
+            </div>
+          </div>
+          <div class="var-body">
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍎</span> Ambri
+                Kashmir
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">12</span>
+                  <div class="variety-bar" data-up="12" data-down="5">
+                    <span class="seg up" aria-hidden="true"></span>
+                    <span class="seg down" aria-hidden="true"></span>
+                  </div>
+                  <span class="count down">5</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct up">Firm</span>
+              </div>
+            </div>
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍏</span> Golden
+                Delicious
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">9</span>
+                  <div class="variety-bar" data-up="9" data-down="3">
+                    <span class="seg up"></span>
+                    <span class="seg down"></span>
+                  </div>
+                  <span class="count down">3</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct up">Slight ↑</span>
+              </div>
+            </div>
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍎</span> Red
+                Delicious
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">34</span>
+                  <div class="variety-bar" data-up="34" data-down="22">
+                    <span class="seg up"></span>
+                    <span class="seg down"></span>
+                  </div>
+                  <span class="count down">22</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct up">Stable</span>
+              </div>
+            </div>
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍎</span> Maharaji
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">7</span>
+                  <div class="variety-bar" data-up="7" data-down="11">
+                    <span class="seg up"></span>
+                    <span class="seg down"></span>
+                  </div>
+                  <span class="count down">11</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct down">Soft</span>
+              </div>
+            </div>
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍎</span> American
+                Trel
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">18</span>
+                  <div class="variety-bar" data-up="18" data-down="25">
+                    <span class="seg up"></span>
+                    <span class="seg down"></span>
+                  </div>
+                  <span class="count down">25</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct down">Pressure</span>
+              </div>
+            </div>
+            <div class="var-row" role="row">
+              <div class="col variety-col" role="cell">
+                <span class="var-icon" aria-hidden="true">🍏</span> Hazratbali
+              </div>
+              <div class="col trend-col" role="cell">
+                <div class="var-stats">
+                  <span class="count up">6</span>
+                  <div class="variety-bar" data-up="6" data-down="4">
+                    <span class="seg up"></span>
+                    <span class="seg down"></span>
+                  </div>
+                  <span class="count down">4</span>
+                </div>
+              </div>
+              <div class="col change-col" role="cell">
+                <span class="pct up">Firm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-section" id="market-updates">
+        <div class="section-head">
+          <h2>Market updates today</h2>
+          <button
+            type="button"
+            class="ghost-btn refresh-news"
+            aria-label="Refresh news"
+            title="Fetch latest Kashmir news"
+          >
+            Refresh
+          </button>
+        </div>
+        <div class="news-grid">
+          <article class="news-card">
+            <div class="news-head">
+              <div class="badge logo-apollo" aria-hidden="true">SK</div>
+              <h3 class="company">Srinagar Mandi</h3>
+              <span class="change-pct up">Arrivals +5%</span>
+            </div>
+            <p
+              class="snippet"
+              title="Early season Ambri lots fetched firmer rates as quality improved after clear weather..."
+            >
+              Early season Ambri lots firm; improved grading lifted sentiment
+              across most commission agents.
+            </p>
+            <div class="meta">
+              Local Trade Notes ·
+              <time datetime="2025-09-24T04:00:00Z">8 hrs</time>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-head">
+              <div class="badge logo-lt" aria-hidden="true">SH</div>
+              <h3 class="company">Shopian Market</h3>
+              <span class="change-pct down">Demand Slow</span>
+            </div>
+            <p
+              class="snippet"
+              title="Moisture in some late harvested lots kept buyers cautious; premium grades still moving quickly..."
+            >
+              Mixed quality arrivals; secondary buyers selective, pressuring
+              mid-grade Maharaji.
+            </p>
+            <div class="meta">
+              Field Report · <time datetime="2025-09-24T03:00:00Z">9 hrs</time>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-head">
+              <div class="badge logo-tcs" aria-hidden="true">DL</div>
+              <h3 class="company">Delhi (Azadpur)</h3>
+              <span class="change-pct up">Rates Steady</span>
+            </div>
+            <p
+              class="snippet"
+              title="Terminal buyers absorbed larger Kashmiri lots; Red Delicious maintained premiums..."
+            >
+              Adequate inflow; wholesalers citing consistent demand for well
+              colored Red Delicious cartons.
+            </p>
+            <div class="meta">
+              Market Bulletin ·
+              <time datetime="2025-09-24T03:00:00Z">9 hrs</time>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-head">
+              <div class="badge logo-hikal" aria-hidden="true">MB</div>
+              <h3 class="company">Mumbai (Vashi)</h3>
+              <span class="change-pct up">Premium ↑</span>
+            </div>
+            <p
+              class="snippet"
+              title="Tight supply of top grade Fuji pushed quotes higher; secondary grades unchanged..."
+            >
+              Premium Fuji & American Trel firm; middling lots clearing with
+              small incentives.
+            </p>
+            <div class="meta">
+              Trade Desk · <time datetime="2025-09-24T03:00:00Z">9 hrs</time>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <a href="index.html" class="footer-brand">
+            <span class="brand-icon"
+              ><img src="Assets/logo.svg" alt="Logo"
+            /></span>
+            <span>Kashmir Apple Prices</span>
+          </a>
+          <p class="footer-text">
+            Daily wholesale apple price snapshots from key mandis with
+            variety-level movement and arrival sentiment.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Sections</h4>
+          <ul class="footer-links">
+            <li><a href="#shopian-mandi">Shopian Mandi</a></li>
+            <li><a href="#sopore-mandi">Sopore Mandi</a></li>
+            <li><a href="#delhi-mandi">Delhi (Azadpur)</a></li>
+            <li><a href="#mumbai-mandi">Mumbai (Vashi)</a></li>
+            <li><a href="#apple-varieties">Arrivals & Demand</a></li>
+            <li><a href="#market-updates">Market Updates</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>More</h4>
+          <ul class="footer-links">
+            <li><a href="submit.html">Submit Prices</a></li>
+            <li><a href="#" target="_blank">Truck Rental</a></li>
+            <li><a href="#" target="_blank">Storage Tips</a></li>
+            <li><a href="#" target="_blank">Quality Grades</a></li>
+            <li><a href="#" target="_blank">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © <span id="year"></span> Kashmir Apple Prices · All rights reserved.
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

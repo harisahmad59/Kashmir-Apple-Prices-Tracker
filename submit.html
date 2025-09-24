@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Apple Prices - Kashmir Apple Prices</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="nav-bar" role="navigation" aria-label="Primary">
+        <button
+          class="mobile-toggle"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="brand" aria-label="Home">
+          <span class="brand-icon" aria-hidden="true">
+            <img src="Assets/logo.svg" alt="Kashmir Apple Prices Logo" />
+          </span>
+          <span class="brand-text">Kashmir Apple Prices</span>
+        </a>
+        <ul class="menu" id="primary-menu">
+          <li><a class="nav-link" href="index.html">Home</a></li>
+          <li>
+            <a class="nav-link active" href="submit.html">Submit Your Prices</a>
+          </li>
+        </ul>
+        <div class="nav-actions">
+          <button
+            class="ghost-btn"
+            type="button"
+            aria-label="Open trading terminal"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="14" rx="2" />
+                <path d="M8 20h8" />
+                <path d="M12 4v16" />
+              </svg>
+            </span>
+            <span>Terminal</span>
+          </button>
+          <a
+            class="outline-btn external"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Truck Rental
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              aria-hidden="true"
+              class="ext"
+            >
+              <path
+                fill="currentColor"
+                d="M5 5h6v2H7v10h10v-4h2v6H5V5zm8-2h8v8h-2V6.414l-9.293 9.293-1.414-1.414L17.586 5H13V3z"
+              />
+            </svg>
+          </a>
+          <button class="icon-btn" aria-label="Search">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
+          <button class="icon-btn" aria-label="Notifications">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16l-2-2Z" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <button class="avatar" aria-label="Account menu">
+            <img src="Assets\user.PNG" alt="User avatar" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="stock-section" style="margin-top: 10px">
+        <div class="section-head">
+          <h2>Submit Market Prices</h2>
+        </div>
+        <form id="price-form" class="price-form" autocomplete="off">
+          <div class="form-grid">
+            <label>
+              <span class="lbl">Your Name / Firm</span>
+              <input
+                type="text"
+                name="name"
+                required
+                placeholder="e.g. Bashir Traders"
+              />
+            </label>
+            <label>
+              <span class="lbl">Mandi</span>
+              <select name="mandi" required>
+                <option value="Shopian">Shopian</option>
+                <option value="Srinagar">Srinagar</option>
+                <option value="Delhi (Azadpur)">Delhi (Azadpur)</option>
+                <option value="Mumbai (Vashi)">Mumbai (Vashi)</option>
+              </select>
+            </label>
+            <label>
+              <span class="lbl">Variety</span>
+              <select name="variety" required>
+                <option value="Delicious">Delicious</option>
+                <option value="American">American</option>
+                <option value="Kullu">Kullu</option>
+                <option value="Gala">Gala</option>
+                <option value="Ambri Kashmir">Ambri Kashmir</option>
+                <option value="Maharaji">Maharaji</option>
+                <option value="American Trel">American Trel</option>
+              </select>
+            </label>
+            <label>
+              <span class="lbl">Price (₹ / box)</span>
+              <input
+                type="number"
+                name="price"
+                min="0"
+                required
+                placeholder="e.g. 1450"
+              />
+            </label>
+            <label>
+              <span class="lbl">Change (₹)</span>
+              <input
+                type="number"
+                name="change"
+                required
+                placeholder="e.g. 40"
+              />
+            </label>
+            <label>
+              <span class="lbl">Change (%)</span>
+              <input
+                type="number"
+                name="changePct"
+                step="0.1"
+                required
+                placeholder="e.g. 2.8"
+              />
+            </label>
+            <label style="grid-column: 1/-1">
+              <span class="lbl">Notes</span>
+              <textarea
+                name="notes"
+                rows="20"
+                placeholder="Quality, demand, arrivals..."
+              ></textarea>
+            </label>
+          </div>
+          <div style="margin-top: 24px; display: flex; gap: 12px">
+            <button
+              type="submit"
+              class="ghost-btn"
+              style="background: #675bff; color: #fff; border-color: #675bff"
+            >
+              Submit
+            </button>
+            <button type="reset" class="ghost-btn">Reset</button>
+          </div>
+          <p
+            id="form-status"
+            style="
+              font-size: 13px;
+              color: #059669;
+              margin-top: 12px;
+              display: none;
+            "
+          >
+            Submitted. Thank you!
+          </p>
+        </form>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <a href="index.html" class="footer-brand">
+            <span class="brand-icon"
+              ><img src="Assets/logo.svg" alt="Logo"
+            /></span>
+            <span>Kashmir Apple Prices</span>
+          </a>
+          <p class="footer-text">
+            Daily wholesale apple price snapshots from key mandis with
+            variety-level movement and arrival sentiment.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Sections</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#shopian-mandi">Shopian Mandi</a></li>
+            <li><a href="index.html#srinagar-mandi">Srinagar Mandi</a></li>
+            <li><a href="index.html#delhi-mandi">Delhi (Azadpur)</a></li>
+            <li><a href="index.html#mumbai-mandi">Mumbai (Vashi)</a></li>
+            <li><a href="index.html#apple-varieties">Arrivals & Demand</a></li>
+            <li><a href="index.html#market-updates">Market Updates</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>More</h4>
+          <ul class="footer-links">
+            <li><a href="submit.html">Submit Prices</a></li>
+            <li><a href="#" target="_blank">Truck Rental</a></li>
+            <li><a href="#" target="_blank">Storage Tips</a></li>
+            <li><a href="#" target="_blank">Quality Grades</a></li>
+            <li><a href="#" target="_blank">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © <span id="year"></span> Kashmir Apple Prices · All rights reserved.
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+    <script>
+      const form = document.getElementById("price-form");
+      const statusEl = document.getElementById("form-status");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        console.log("Submitted price data", data);
+        statusEl.style.display = "block";
+        statusEl.textContent = "Submitted. Thank you!";
+        form.reset();
+        setTimeout(() => {
+          statusEl.style.display = "none";
+        }, 4000);
+      });
+    </script>
+  </body>
+</html>
