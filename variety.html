@@ -65,7 +65,7 @@
         border-radius: 999px;
         padding: 6px 10px 6px 8px;
         color: #b5482c;
-        margin: 0 0 6px;
+        margin: 100px 0 6px; /* add 100px top margin as requested */
         cursor: pointer;
       }
       .back-inline:hover {
@@ -326,7 +326,7 @@
       const mandi = qs("mandi");
       const variety = qs("variety");
       // API base detection (match logic used on main dashboard)
-      const API_BASE = (() => {
+      const V_API_BASE = (() => {
         const meta = document.querySelector('meta[name="api-base"]');
         let base = (
           window.__API_BASE__ ||
@@ -394,9 +394,9 @@
 
       function buildApiCandidates() {
         const list = [];
-        if (API_BASE) list.push(API_BASE);
+        if (V_API_BASE) list.push(V_API_BASE);
         // Same-origin relative (empty string) if served via http(s)
-        if (!API_BASE && /^https?:/.test(location.protocol)) list.push("");
+        if (!V_API_BASE && /^https?:/.test(location.protocol)) list.push("");
         // Local dev fallback
         if (!list.includes("http://localhost:4000"))
           list.push("http://localhost:4000");
@@ -642,7 +642,7 @@
             }
           } catch (_) {}
           if (direct) {
-            const cur = direct.priceBox || 0;
+            const cur = Number(direct.priceBox) || 0;
             setVarietyTitle(direct.variety);
             document.getElementById("varietyPrice").textContent = cur
               ? "₹" + globalFmt.format(cur)
@@ -653,9 +653,22 @@
             const today = new Date();
             const yest = new Date(today);
             yest.setDate(today.getDate() - 1);
-            const prevVal = cur
-              ? Math.max(50, Math.round(cur * (0.97 + Math.random() * 0.04)))
-              : cur;
+            let prevVal = cur;
+            // Reproduce exact change from homepage if available
+            const hasAbs = Number.isFinite(direct.changeAbs);
+            const hasPct = Number.isFinite(direct.changePct);
+            if (hasAbs && cur !== 0) {
+              prevVal = cur - direct.changeAbs;
+            } else if (hasPct && cur !== 0) {
+              // changePct = (cur - prev) / prev * 100  => prev = cur / (1 + pct/100)
+              const denom = 1 + direct.changePct / 100;
+              prevVal = denom !== 0 ? cur / denom : cur;
+            } else if (direct.changeText && /stable/i.test(direct.changeText)) {
+              prevVal = cur;
+            } else {
+              // deterministic fallback for when no change info is available
+              prevVal = cur ? Math.max(50, Math.round(cur * 0.985)) : cur;
+            }
             state.fullSeries = [
               { date: yest, value: prevVal },
               { date: today, value: cur },
@@ -719,6 +732,13 @@
               throw lastErr || new Error("No data (cache miss + fetch fail)");
             rows = data.rows || [];
           }
+          // Expose rows for sibling components (e.g., other varieties list)
+          try {
+            window.__MANDI_CONTEXT__ = { mandi, rows: Array.isArray(rows) ? rows.slice() : [] };
+              window.dispatchEvent(
+                new CustomEvent("mandi-data", { detail: { mandi, rows } })
+              );
+          } catch {}
           const wanted = variety.toLowerCase();
           let rowFuzzy = rows.find(
             (r) => r.variety && r.variety.toLowerCase() === wanted
@@ -797,63 +817,73 @@
     </script>
   </head>
   <body>
-    <header
-      class="site-header"
-      style="
-        position: sticky;
-        top: 0;
-        background: #fff;
-        z-index: 10;
-        padding: 0.75rem 1.25rem;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      "
-    >
-      <a
-        href="index.html"
-        style="text-decoration: none; font-weight: 600; color: #b5482c"
-        >← Back</a
-      >
-      <div style="font-size: 0.9rem; opacity: 0.7">Kashmir Apple Prices</div>
-      <a
-        href="https://www.google.com/maps/search/cold+storage+near+me"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
-          margin-left: auto;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.7rem;
-          text-decoration: none;
-          background: #fff;
-          border: 1px solid #eee;
-          padding: 6px 10px;
-          border-radius: 20px;
-          color: #b5482c;
-          font-weight: 600;
-          letter-spacing: 0.5px;
-        "
-        aria-label="Find Cold Storage near me"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="16"
-          height="16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+    <header class="site-header">
+      <div class="nav-bar" role="navigation" aria-label="Primary">
+        <button
+          class="mobile-toggle"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          aria-label="Toggle navigation"
         >
-          <path
-            d="M3 10l9-7 9 7v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H3v-9z"
-          />
-        </svg>
-        <span>Find Cold Storage</span>
-      </a>
+          <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="brand" aria-label="Home">
+          <span class="brand-icon" aria-hidden="true">
+            <img src="Assets/logo-main.png" alt="Kashmir Apple Prices Logo" />
+          </span>
+          <span class="brand-text">Kashmir Apple Prices</span>
+        </a>
+        <ul class="menu" id="primary-menu">
+          <li><a class="nav-link" href="index.html">Home</a></li>
+          <li><a class="nav-link" href="submit.html">Submit Your Prices</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a
+            class="ghost-btn"
+            href="https://www.google.com/maps/search/cold+storage+near+me"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Find Cold Storage near me"
+          >
+            <span class="icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M3 10l9-7 9 7v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H3v-9z"
+                />
+              </svg>
+            </span>
+            <span>Find Cold Storage</span>
+          </a>
+          <a
+            class="outline-btn external"
+            href="https://fois.indianrail.gov.in/RailSAHAY/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Freight Train
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              aria-hidden="true"
+              class="ext"
+            >
+              <path
+                fill="currentColor"
+                d="M5 5h6v2H7v10h10v-4h2v6H5V5zm8-2h8v8h-2V6.414l-9.293 9.293-1.414-1.414L17.586 5H13V3z"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
     </header>
     <main>
       <a class="back-inline" onclick="history.back()" aria-label="Go back"
@@ -910,45 +940,22 @@
       <section class="overview" id="overviewSection">
         <h2>Overview</h2>
         <div class="ov-row">
-          <div class="ov-item">
-            <span class="ov-label">Current Price</span>
-            <span class="ov-value" id="ovCurrentPrice">₹—</span>
-          </div>
-          <div class="ov-item">
-            <span class="ov-label">Average Weight / Box</span>
-            <span class="ov-value" id="ovAvgWeight">15 KGs</span>
-          </div>
+          <div class="ov-label">Current Price</div>
+          <div id="ovCurrentPrice" class="ov-value">₹—</div>
         </div>
-        <div class="ov-desc-wrapper">
-          <div class="ov-desc-label">Description</div>
-          <p class="ov-desc" id="ovDesc">Loading description...</p>
+        <div class="ov-row">
+          <div class="ov-label">Avg Weight</div>
+          <div id="ovAvgWeight" class="ov-value">— KGs</div>
         </div>
+        <div class="ov-desc-label">Description</div>
+        <div id="ovDesc" class="ov-desc">Loading…</div>
       </section>
-    </main>
-    <script>
-      function updateShareLinks() {
-        const varietyTitle = (
-          document.getElementById("varietyTitle")?.textContent || "Variety"
-        ).trim();
-        const mandiTitle = (
-          document.getElementById("mandiName")?.textContent || ""
-        ).trim();
-        const url = location.href.split("#")[0];
-        const text = `Price for ${varietyTitle} (${mandiTitle}) - Kashmir Apple Prices`;
-        const wa = document.getElementById("shareWA");
-        const tg = document.getElementById("shareTG");
-        if (wa)
-          wa.href = `https://wa.me/?text=${encodeURIComponent(
-            text + " " + url
-          )}`;
-        if (tg)
-          tg.href = `https://t.me/share/url?url=${encodeURIComponent(
-            url
-          )}&text=${encodeURIComponent(text)}`;
-      }
-      document.addEventListener("DOMContentLoaded", () => {
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
         // attempt to update if data already loaded quickly
-        setTimeout(updateShareLinks, 800);
+        if (typeof updateShareLinks === "function") {
+          setTimeout(updateShareLinks, 800);
+        }
         const copyBtn = document.getElementById("shareCopy");
         copyBtn?.addEventListener("click", async () => {
           try {
@@ -971,87 +978,91 @@
           } catch (e) {}
         }, 1200);
       });
-      function populateOverviewSection() {
-        const priceEl = document.getElementById("varietyPrice");
-        const ovPriceEl = document.getElementById("ovCurrentPrice");
-        if (priceEl && ovPriceEl) {
-          ovPriceEl.textContent = priceEl.textContent.replace(/\s+/g, "");
-        }
-        const weightEl = document.getElementById("ovAvgWeight");
-        const vNameRaw = (
-          document.getElementById("varietyTitle")?.textContent || ""
-        ).trim();
-        const vName = vNameRaw.toLowerCase();
-        let w = 15;
-        if (/delicious|american|washington/.test(vName)) w = 16;
-        if (/kullu|ambri/.test(vName)) w = 14;
-        weightEl.textContent = w + " KGs";
-        const descEl = document.getElementById("ovDesc");
-        if (descEl) {
-          const basePhrases = [
-            "consistent grading",
-            "firm texture",
-            "aroma retention",
-            "market preference",
-            "handling resilience",
-            "colour development",
-            "packing efficiency",
-            "cool-chain stability",
-            "grower confidence",
-            "buyer demand",
-            "shelf performance",
-            "shape uniformity",
-            "pricing momentum",
-            "supply pattern",
-            "seasonal arrival window",
-          ];
-          let seed = 0;
-          for (const ch of vName) {
-            seed = (seed + ch.charCodeAt(0) * 17) % 9973;
-          }
-          function pick(i) {
-            return basePhrases[(seed + i * 7) % basePhrases.length];
-          }
-          const proper = vNameRaw ? vNameRaw : "This variety";
-          const sentences = [];
-          sentences.push(
-            `${proper} shows ${pick(1)} and ${pick(
-              2
-            )}, supporting steady trading through the current harvest phase.`
-          );
-          sentences.push(
-            `Current pricing reflects ${pick(3)} plus ${pick(4)}, while ${pick(
-              5
-            )} aids packhouse turnaround and logistics planning.`
-          );
-          sentences.push(
-            `Grower sentiment remains shaped by ${pick(6)} and ${pick(
-              7
-            )}, with logistics timing influenced by ${pick(
-              8
-            )} and regional weather discipline.`
-          );
-          sentences.push(
-            `Packhouses report that ${pick(9)} and ${pick(
-              10
-            )} together underpin forward enquiry, moderating volatility and smoothing dispatch cycles.`
-          );
-          sentences.push(
-            `Mid-season adjustments in ${pick(11)} alongside ${pick(
-              12
-            )} have encouraged calibrated release strategies to prevent oversupply pockets.`
-          );
-          sentences.push(
-            `Forward outlook balances ${pick(13)} visibility with ${pick(
-              14
-            )} variability, keeping stakeholders attentive to auction signals and terminal market absorption rates.`
-          );
-          const text = sentences.join(" ");
-          const words = text.split(/\s+/).slice(0, 150);
-          descEl.textContent =
-            words.join(" ") + (words.length >= 150 ? "." : "");
-        }
+  function populateOverviewSection() {
+    // If the overview section or its fields are not present, safely exit
+    const container = document.getElementById("overviewSection");
+    if (!container) return;
+    const priceEl = document.getElementById("varietyPrice");
+    const ovPriceEl = document.getElementById("ovCurrentPrice");
+    if (priceEl && ovPriceEl) {
+      ovPriceEl.textContent = priceEl.textContent.replace(/\s+/g, "");
+    }
+    const weightEl = document.getElementById("ovAvgWeight");
+    const vNameRaw = (
+      document.getElementById("varietyTitle")?.textContent || ""
+    ).trim();
+    const vName = vNameRaw.toLowerCase();
+    let w = 15;
+    if (/delicious|american|washington/.test(vName)) w = 16;
+    if (/kullu|ambri/.test(vName)) w = 14;
+    if (weightEl) weightEl.textContent = w + " KGs";
+    const descEl = document.getElementById("ovDesc");
+    if (descEl) {
+      const basePhrases = [
+        "consistent grading",
+        "firm texture",
+        "aroma retention",
+        "market preference",
+        "handling resilience",
+        "colour development",
+        "packing efficiency",
+        "cool-chain stability",
+        "grower confidence",
+        "buyer demand",
+        "shelf performance",
+        "shape uniformity",
+        "pricing momentum",
+        "supply pattern",
+        "seasonal arrival window",
+      ];
+      let seed = 0;
+      for (const ch of vName) {
+        seed = (seed + ch.charCodeAt(0) * 17) % 9973;
       }
-    </script>
+      function pick(i) {
+        return basePhrases[(seed + i * 7) % basePhrases.length];
+      }
+      const proper = vNameRaw ? vNameRaw : "This variety";
+      const sentences = [];
+      sentences.push(
+        `${proper} shows ${pick(1)} and ${pick(
+          2
+        )}, supporting steady trading through the current harvest phase.`
+      );
+      sentences.push(
+        `Current pricing reflects ${pick(3)} plus ${pick(4)}, while ${pick(
+          5
+        )} aids packhouse turnaround and logistics planning.`
+      );
+      sentences.push(
+        `Grower sentiment remains shaped by ${pick(6)} and ${pick(
+          7
+        )}, with logistics timing influenced by ${pick(
+          8
+        )} and regional weather discipline.`
+      );
+      sentences.push(
+        `Packhouses report that ${pick(9)} and ${pick(
+          10
+        )} together underpin forward enquiry, moderating volatility and smoothing dispatch cycles.`
+      );
+      sentences.push(
+        `Mid-season adjustments in ${pick(11)} alongside ${pick(
+          12
+        )} have encouraged calibrated release strategies to prevent oversupply pockets.`
+      );
+      sentences.push(
+        `Forward outlook balances ${pick(13)} visibility with ${pick(
+          14
+        )} variability, keeping stakeholders attentive to auction signals and terminal market absorption rates.`
+      );
+      const text = sentences.join(" ");
+      const words = text.split(/\s+/).slice(0, 150);
+      descEl.textContent =
+        words.join(" ") + (words.length >= 150 ? "." : "");
+    }
+  }
+  </script>
+  <script src="script.js"></script>
   </body>
 </html>

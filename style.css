@@ -622,34 +622,20 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 56px 24px 40px;
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr; /* three columns in one line */
-  gap: 40px 70px;
-  align-items: start;
-}
-.footer-col h4 {
-  margin: 0 0 14px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center brand in the footer */
 }
 .footer-brand {
   display: flex;
+  flex-direction: column; /* logo above, title below */
   align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  font-size: 16px;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 32px; /* doubled */
   text-decoration: none;
-  margin-bottom: 10px;
-  color: #111827;
-}
-.footer-brand span:last-child {
-  background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent; /* match brand gradient */
+  margin-bottom: 6px;
+  color: #111827; /* ensure black title */
 }
 .footer-brand .brand-icon {
   width: 46px;
@@ -659,29 +645,7 @@ button {
   border: 1px solid #e5e7eb;
   overflow: hidden;
 }
-.footer-text {
-  max-width: 360px;
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
-}
-.footer-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.footer-links a {
-  text-decoration: none;
-  color: #4b5563;
-  transition: 0.2s color;
-  font-weight: 500;
-}
-.footer-links a:hover {
-  color: #111827;
-}
+/* Remove extra text/links in simplified footer */
 .footer-bottom {
   border-top: 1px solid #eef0f3;
   margin-top: 10px;
@@ -701,7 +665,7 @@ button {
     gap: 34px 36px;
   }
   .footer-brand {
-    font-size: 15px;
+    font-size: 30px; /* doubled for mobile */
   }
 }
 

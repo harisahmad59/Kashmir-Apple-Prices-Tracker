@@ -427,12 +427,32 @@ document.addEventListener("click", (e) => {
     .querySelector(".price")
     ?.textContent.replace(/[^0-9.]/g, "");
   const changeText = card.querySelector(".change")?.textContent.trim() || "";
+  // Parse numeric change from text like "+50 (2.5%)", "-20 (1.5%)", "+2.5%", or mark Stable as 0
+  let changeAbs = null;
+  let changePct = null;
+  const absPct = changeText.match(
+    /([+-]?\d+(?:\.\d+)?)\s*\(\s*([+-]?\d+(?:\.\d+)?)\s*%\s*\)/
+  );
+  if (absPct) {
+    changeAbs = Number(absPct[1]);
+    changePct = Number(absPct[2]);
+  } else {
+    const pctOnly = changeText.match(/([+-]?\d+(?:\.\d+)?)\s*%/);
+    if (pctOnly) {
+      changePct = Number(pctOnly[1]);
+    } else if (/^stable/i.test(changeText)) {
+      changeAbs = 0;
+      changePct = 0;
+    }
+  }
   try {
     const payload = {
       mandi,
       variety: varietyName,
       priceBox: priceText ? Number(priceText) : null,
       changeText,
+      changeAbs: Number.isFinite(changeAbs) ? changeAbs : null,
+      changePct: Number.isFinite(changePct) ? changePct : null,
       ts: Date.now(),
     };
     sessionStorage.setItem("clickedVariety", JSON.stringify(payload));
