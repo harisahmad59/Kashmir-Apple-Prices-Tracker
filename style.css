@@ -307,6 +307,10 @@ body.menu-open {
   .hero-pill {
     margin: 60px 0 14px;
   }
+  /* Hide the second column with floating cards on phones */
+  .hero-media {
+    display: none;
+  }
   .mock-phone {
     width: 200px;
   }
