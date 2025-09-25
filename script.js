@@ -18,6 +18,7 @@ if (mobileToggle) {
     const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
     mobileToggle.setAttribute("aria-expanded", String(!expanded));
     menu.classList.toggle("open");
+    document.body.classList.toggle("menu-open", !expanded);
   });
 }
 
@@ -32,6 +33,7 @@ menu?.addEventListener("click", (e) => {
   if (window.innerWidth < 940) {
     mobileToggle.setAttribute("aria-expanded", "false");
     menu.classList.remove("open");
+    document.body.classList.remove("menu-open");
   }
 });
 
@@ -40,6 +42,7 @@ window.addEventListener("resize", () => {
   if (window.innerWidth >= 940 && menu.classList.contains("open")) {
     mobileToggle.setAttribute("aria-expanded", "false");
     menu.classList.remove("open");
+    document.body.classList.remove("menu-open");
   }
 });
 
@@ -50,6 +53,7 @@ document.addEventListener("click", (e) => {
   if (e.target.closest(".nav-bar")) return; // inside
   mobileToggle.setAttribute("aria-expanded", "false");
   menu.classList.remove("open");
+  document.body.classList.remove("menu-open");
 });
 
 // Variety bar sizing
@@ -234,25 +238,65 @@ function loadKashmirNews(options = { showSpinner: true }) {
   if (!newsGrid) return;
   const refreshBtn = document.querySelector(".refresh-news");
   const API_KEY = "217015665eaecaed7b51119b299a75be";
-  const query = encodeURIComponent("Kashmir apple");
-  const endpoint = `https://gnews.io/api/v4/search?q=${query}&lang=en&country=in&max=4&sortby=publishedAt&apikey=${API_KEY}`;
+  const QUERIES = [
+    '"Kashmir apple" OR "Kashmiri apples"',
+    "Shopian apple OR Sopore apple OR Pulwama apple",
+    "Azadpur apple OR Vashi apple OR Koley market apple",
+    "Kashmir horticulture OR Kashmir agriculture OR Kashmir fruit market",
+    "Kashmir farmers OR Kashmir growers OR apple growers",
+    "Jammu Srinagar highway OR Jammu-Srinagar highway OR NH44 apple OR fruit trucks",
+  ];
+
+  const pickNextQuery = () => {
+    let idx = Number(sessionStorage.getItem("news:lastQueryIdx") || "-1");
+    idx = (idx + 1) % QUERIES.length;
+    sessionStorage.setItem("news:lastQueryIdx", String(idx));
+    return QUERIES[idx];
+  };
+
+  const getSeen = () => {
+    try {
+      return new Set(
+        JSON.parse(sessionStorage.getItem("news:seenUrls") || "[]")
+      );
+    } catch {
+      return new Set();
+    }
+  };
+  const addSeen = (urls) => {
+    try {
+      const seen = Array.from(getSeen());
+      const merged = Array.from(new Set([...urls, ...seen])).slice(0, 60);
+      sessionStorage.setItem("news:seenUrls", JSON.stringify(merged));
+    } catch {}
+  };
+
+  const cacheBust = () => `&_=${Date.now()}`;
+  const buildEndpoint = (query) => {
+    const q = encodeURIComponent(query);
+    const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    return `https://gnews.io/api/v4/search?q=${q}&lang=en&country=in&max=8&sortby=publishedAt&from=${from}&apikey=${API_KEY}${cacheBust()}`;
+  };
+
+  const skeletonCard = () => `
+    <article class="news-card skeleton">
+      <div class="news-head">
+        <div class="sk-box"></div>
+        <div class="sk-col">
+          <div class="sk-line w60"></div>
+          <div class="sk-line w40"></div>
+        </div>
+        <div class="sk-pill"></div>
+      </div>
+      <div class="sk-line w90"></div>
+      <div class="sk-line w75"></div>
+      <div class="sk-line w55"></div>
+      <div class="sk-meta"></div>
+    </article>`;
 
   if (options.showSpinner) {
-    const skeletonCard = () => `
-      <article class="news-card skeleton">
-        <div class="news-head">
-          <div class="sk-box"></div>
-          <div class="sk-col">
-            <div class="sk-line w60"></div>
-            <div class="sk-line w40"></div>
-          </div>
-          <div class="sk-pill"></div>
-        </div>
-        <div class="sk-line w90"></div>
-        <div class="sk-line w75"></div>
-        <div class="sk-line w55"></div>
-        <div class="sk-meta"></div>
-      </article>`;
     newsGrid.innerHTML =
       skeletonCard() + skeletonCard() + skeletonCard() + skeletonCard();
   }
@@ -261,36 +305,62 @@ function loadKashmirNews(options = { showSpinner: true }) {
     refreshBtn.classList.add("is-loading");
   }
 
-  fetch(endpoint)
-    .then((r) => {
-      if (!r.ok) throw new Error("Network response was not ok");
-      return r.json();
-    })
-    .then((data) => {
-      const articles = (data.articles || []).slice(0, 4);
+  const now = Date.now();
+  const relTime = (iso) => {
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return "";
+    const diffMs = now - t;
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + " min";
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + " hrs";
+    const days = Math.floor(hrs / 24);
+    return days + "d";
+  };
+  const sanitize = (str = "") =>
+    str.replace(
+      /[&<>]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])
+    );
+
+  const tryLoad = async () => {
+    const seen = getSeen();
+    let attempts = QUERIES.length;
+    let picked = [];
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const isRecent = (iso) => {
+      const t = new Date(iso || 0).getTime();
+      return !isNaN(t) && t >= cutoff;
+    };
+    while (attempts-- > 0) {
+      const q = pickNextQuery();
+      try {
+        const r = await fetch(buildEndpoint(q));
+        if (!r.ok) throw new Error(r.status + " " + r.statusText);
+        const data = await r.json();
+        // Filter by last 7 days first
+        const candidates = (data.articles || []).filter(
+          (a) => a && a.url && isRecent(a.publishedAt)
+        );
+        const fresh = candidates.filter((a) => !seen.has(a.url));
+        picked = (fresh.length ? fresh : candidates).slice(0, 4);
+        if (picked.length) break;
+      } catch (err) {
+        // continue to next query
+      }
+    }
+    return picked;
+  };
+
+  tryLoad()
+    .then((articles) => {
       if (!articles.length) {
         newsGrid.innerHTML =
-          '<p class="loading-news">No fresh Kashmir news found right now.</p>';
+          '<p class="loading-news">No news from the last 7 days found for now.</p>';
         return;
       }
-      const now = Date.now();
-      const relTime = (iso) => {
-        const t = new Date(iso).getTime();
-        if (isNaN(t)) return "";
-        const diffMs = now - t;
-        const mins = Math.floor(diffMs / 60000);
-        if (mins < 1) return "just now";
-        if (mins < 60) return mins + " min";
-        const hrs = Math.floor(mins / 60);
-        if (hrs < 24) return hrs + " hrs";
-        const days = Math.floor(hrs / 24);
-        return days + "d";
-      };
-      const sanitize = (str = "") =>
-        str.replace(
-          /[&<>]/g,
-          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])
-        );
+      addSeen(articles.map((a) => a.url));
       newsGrid.innerHTML = articles
         .map((a) => {
           const source = a.source?.name || "Source";
@@ -337,6 +407,12 @@ document.addEventListener("click", (e) => {
 document.addEventListener("click", (e) => {
   const card = e.target.closest(".stock-card");
   if (!card) return;
+  // Block interaction if card is still loading or price isn't available
+  if (card.classList.contains("loading")) return;
+  const priceEl = card.querySelector(".price");
+  const priceRaw = (priceEl?.textContent || "").trim();
+  // Accept only values that start with a currency/number; ignore placeholders like "—" or "Loading…"
+  if (!/^([₹]\s*)?\d/.test(priceRaw)) return;
   const section = card.closest(".stock-section");
   if (!section) return;
   const varietyName = card.querySelector(".stock-name")?.textContent.trim();
@@ -369,3 +445,42 @@ document.addEventListener("click", (e) => {
   // Use same tab navigation so sessionStorage remains accessible
   window.location.href = url;
 });
+
+// -------- FAQ Accordion --------
+function initFAQAccordion() {
+  const items = document.querySelectorAll(".accordion-item");
+  if (!items.length) return;
+  items.forEach((item) => {
+    const trigger = item.querySelector(".accordion-trigger");
+    const panel = item.querySelector(".accordion-panel");
+    if (!trigger || !panel) return;
+    // Ensure collapsed state initial
+    panel.style.maxHeight = "0px";
+    trigger.addEventListener("click", () => {
+      const expanded = trigger.getAttribute("aria-expanded") === "true";
+      // Close other items
+      items.forEach((other) => {
+        if (other === item) return;
+        const t = other.querySelector(".accordion-trigger");
+        const p = other.querySelector(".accordion-panel");
+        if (t && p) {
+          t.setAttribute("aria-expanded", "false");
+          p.classList.remove("open");
+          p.style.maxHeight = "0px";
+        }
+      });
+      if (expanded) {
+        trigger.setAttribute("aria-expanded", "false");
+        panel.classList.remove("open");
+        panel.style.maxHeight = "0px";
+      } else {
+        trigger.setAttribute("aria-expanded", "true");
+        panel.classList.add("open");
+        // Add extra space to accommodate increased top/bottom padding
+        panel.style.maxHeight = panel.scrollHeight + 40 + "px";
+      }
+    });
+  });
+}
+
+window.addEventListener("DOMContentLoaded", initFAQAccordion);

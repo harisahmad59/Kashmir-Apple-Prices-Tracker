@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Variety Price Chart</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="Assets/favicon.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <style>
       :root {
         --up: #059669;
@@ -108,6 +115,34 @@
       #chartWrap canvas {
         width: 100%;
       }
+      .range-tabs {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        display: flex;
+        gap: 6px;
+        z-index: 6;
+      }
+      .range-tabs button {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
+        padding: 4px 10px 5px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #555;
+      }
+      .range-tabs button.active {
+        background: #b5482c;
+        color: #fff;
+        border-color: #b5482c;
+      }
+      .range-tabs button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
       .chart-overlay {
         position: absolute;
         top: 10px;
@@ -162,6 +197,116 @@
         font-size: 0.65rem;
         letter-spacing: 0.5px;
         opacity: 0.55;
+      }
+      .share-inline {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.55rem;
+        margin-top: 0.65rem;
+        flex-wrap: wrap;
+      }
+      .share-inline .share-label {
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        opacity: 0.55;
+        text-transform: uppercase;
+        margin-right: 0.25rem;
+      }
+      .share-icon {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #e5e5e5;
+        background: #fff;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, color 0.18s;
+      }
+      .share-icon:hover {
+        background: #fff3ef;
+        border-color: #e0c1b8;
+        color: #b5482c;
+      }
+      .share-icon.wa {
+        background: #25d366;
+        border-color: #25d366;
+        color: #fff;
+      }
+      .share-icon.wa:hover {
+        background: #1fb659;
+      }
+      .share-icon.tg {
+        background: #229ed9;
+        border-color: #229ed9;
+        color: #fff;
+      }
+      .share-icon.tg:hover {
+        background: #178bbf;
+      }
+      .share-icon.copy.copied {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+      }
+      .overview {
+        margin-top: 2.2rem;
+        border: 1px solid #eee;
+        background: #fff;
+        padding: 1.1rem 1.1rem 1.25rem;
+        border-radius: 14px;
+      }
+      .overview h2 {
+        margin: 0 0 0.85rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .ov-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        row-gap: 0.75rem;
+        margin: 0 0 1.05rem;
+      }
+      .ov-item {
+        min-width: 160px;
+      }
+      .ov-label {
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.55;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.28rem;
+      }
+      .ov-value {
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+      }
+      .ov-desc-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.55;
+        font-weight: 600;
+        margin: 0 0 0.4rem;
+      }
+      .ov-desc {
+        font-size: 0.72rem;
+        line-height: 1.45;
+        max-width: 760px;
+        color: #333;
       }
       @media (max-width: 640px) {
         .live-price {
@@ -261,9 +406,9 @@
       async function loadData() {
         const wrap = document.getElementById("chartInner");
         wrap.innerHTML = '<div class="loading-spinner"></div>';
-        // keep attempted URLs visible to catch block (was block-scoped earlier causing ReferenceError)
         const attempted = [];
         try {
+          // --- Constants & formatters ---
           const MONTHS = [
             "Jan",
             "Feb",
@@ -279,8 +424,8 @@
             "Dec",
           ];
           const formatDate = (d) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
-          // --- Chart enhancement helpers ---
           const globalFmt = new Intl.NumberFormat("en-IN");
+          // --- Plugins (kept inside so they can see helpers) ---
           const guidelinePlugin = {
             id: "hoverGuide",
             afterDraw(chart) {
@@ -344,45 +489,65 @@
             )}%)</span>`;
             wrapSec.appendChild(div);
           }
-          // Fast path: use clickedVariety payload if it matches params
-          let direct = null;
-          try {
-            const raw = sessionStorage.getItem("clickedVariety");
-            if (raw) {
-              const obj = JSON.parse(raw);
-              if (
-                obj &&
-                obj.mandi === mandi &&
-                obj.variety.toLowerCase() === variety.toLowerCase()
-              ) {
-                direct = obj;
+          // --- Range State ---
+          let selectedRange = "1D";
+          const state = { fullSeries: null };
+          const rangeTabs = document.getElementById("rangeTabs");
+          function markActiveButtons() {
+            if (!rangeTabs) return;
+            const len = state.fullSeries ? state.fullSeries.length : 0;
+            [...rangeTabs.querySelectorAll("button[data-range]")].forEach(
+              (btn) => {
+                const r = btn.getAttribute("data-range");
+                btn.classList.toggle("active", r === selectedRange);
+                if (r === "1D") {
+                  btn.disabled = len < 2;
+                } else if (r === "1W") {
+                  btn.disabled = len < 7;
+                }
               }
-            }
-          } catch (e) {
-            /* ignore */
+            );
           }
-          if (direct) {
-            const cur = direct.priceBox || 0;
-            setVarietyTitle(direct.variety);
+          function sliceForRange(series) {
+            if (!series) return [];
+            if (selectedRange === "Full") return series;
+            if (selectedRange === "1W") return series.slice(-7);
+            if (selectedRange === "1D") return series.slice(-2);
+            return series;
+          }
+          function updateHeroChange(filtered) {
+            const chEl = document.getElementById("varietyChange");
+            if (!filtered.length) {
+              chEl.textContent = "—";
+              chEl.classList.remove("up", "down");
+              return;
+            }
+            const last = filtered[filtered.length - 1];
+            const prev =
+              filtered.length > 1 ? filtered[filtered.length - 2] : last;
+            const diff = last.value - prev.value;
+            const pct = prev.value ? (diff / prev.value) * 100 : 0;
+            const up = diff >= 0;
             const fmt = new Intl.NumberFormat("en-IN");
-            document.getElementById("varietyPrice").textContent = cur
-              ? "₹" + fmt.format(cur)
-              : "₹—";
-            document.getElementById("varietyChange").textContent =
-              direct.changeText || "—";
-            document.getElementById("dataStamp").textContent =
-              new Date(direct.ts).toLocaleString() + " • Card";
-            // Build tiny 2-point series (yesterday vs today)
-            const today = new Date();
-            const yest = new Date(today);
-            yest.setDate(today.getDate() - 1);
-            const prevVal = cur
-              ? Math.max(50, Math.round(cur * (0.97 + Math.random() * 0.04)))
-              : cur;
-            const values = [prevVal, cur];
-            wrap.innerHTML = '<canvas id="priceChart" height="300"></canvas>';
+            chEl.textContent = `${diff >= 0 ? "+" : ""}${fmt.format(diff)} (${
+              pct >= 0 ? "+" : ""
+            }${pct.toFixed(2)}%) ${selectedRange}`;
+            chEl.classList.toggle("up", up);
+            chEl.classList.toggle("down", !up);
+          }
+          function renderChart() {
+            if (!state.fullSeries) return;
+            const series = sliceForRange(state.fullSeries);
+            const chartDiv = document.getElementById("chartInner");
+            chartDiv.innerHTML =
+              '<canvas id="priceChart" height="300"></canvas>';
             const ctx = document.getElementById("priceChart").getContext("2d");
-            const up = values[1] - values[0] >= 0;
+            const labelDates = series.map((s) => s.date);
+            const labels = labelDates.map(formatDate);
+            const values = series.map((s) => s.value);
+            const last = values[values.length - 1];
+            const prev = values.length > 1 ? values[values.length - 2] : last;
+            const up = last - prev >= 0;
             const lineColor = up ? "#059669" : "#dc2626";
             const gradient = ctx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(
@@ -393,24 +558,48 @@
               1,
               up ? "rgba(5,150,105,0)" : "rgba(220,38,38,0)"
             );
+            const midValue = (Math.min(...values) + Math.max(...values)) / 2;
+            const midlinePlugin = {
+              id: "midline",
+              afterDraw(chart) {
+                const {
+                  ctx,
+                  chartArea: { left, right },
+                  scales: { y },
+                } = chart;
+                const yPx = y.getPixelForValue(midValue);
+                ctx.save();
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = "rgba(0,0,0,.08)";
+                ctx.beginPath();
+                ctx.moveTo(left, yPx);
+                ctx.lineTo(right, yPx);
+                ctx.stroke();
+                ctx.restore();
+              },
+            };
             new Chart(ctx, {
               type: "line",
               data: {
-                labels: [formatDate(yest), formatDate(today)],
+                labels,
                 datasets: [
                   {
                     data: values,
                     borderColor: lineColor,
                     borderWidth: 2.2,
-                    pointRadius: (c) => (c.dataIndex === 1 ? 5 : 0),
+                    spanGaps: true,
+                    pointRadius: (c) =>
+                      c.dataIndex === values.length - 1 ? 5 : 0,
+                    pointHoverRadius: 6,
                     pointBackgroundColor: lineColor,
                     fill: { target: "origin", above: gradient },
-                    tension: 0.3,
+                    tension: 0.28,
                   },
                 ],
               },
               options: {
                 maintainAspectRatio: false,
+                interaction: { intersect: false, mode: "index" },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
@@ -420,16 +609,63 @@
                 },
                 scales: { x: { display: false }, y: { display: false } },
                 weekInfo: {
-                  labelDates: [yest, today],
-                  startDateMs: yest.getTime(),
+                  labelDates,
+                  startDateMs: labelDates[0]?.getTime() || Date.now(),
                 },
               },
-              plugins: [guidelinePlugin, weekGridPlugin],
+              plugins: [midlinePlugin, guidelinePlugin, weekGridPlugin],
             });
-            setOverlay(cur, prevVal);
+            setOverlay(last, prev);
+            updateHeroChange(series);
+            markActiveButtons();
+          }
+          rangeTabs?.addEventListener("click", (e) => {
+            const btn = e.target.closest("button[data-range]");
+            if (!btn) return;
+            const r = btn.getAttribute("data-range");
+            if (r === selectedRange) return;
+            selectedRange = r;
+            renderChart();
+          });
+          // --- Fast path direct (clicked card) ---
+          let direct = null;
+          try {
+            const raw = sessionStorage.getItem("clickedVariety");
+            if (raw) {
+              const obj = JSON.parse(raw);
+              if (
+                obj &&
+                obj.mandi === mandi &&
+                obj.variety.toLowerCase() === variety.toLowerCase()
+              )
+                direct = obj;
+            }
+          } catch (_) {}
+          if (direct) {
+            const cur = direct.priceBox || 0;
+            setVarietyTitle(direct.variety);
+            document.getElementById("varietyPrice").textContent = cur
+              ? "₹" + globalFmt.format(cur)
+              : "₹—";
+            document.getElementById("dataStamp").textContent = new Date(
+              direct.ts
+            ).toLocaleString();
+            const today = new Date();
+            const yest = new Date(today);
+            yest.setDate(today.getDate() - 1);
+            const prevVal = cur
+              ? Math.max(50, Math.round(cur * (0.97 + Math.random() * 0.04)))
+              : cur;
+            state.fullSeries = [
+              { date: yest, value: prevVal },
+              { date: today, value: cur },
+            ];
+            selectedRange = "1D";
+            renderChart();
+            if (typeof updateShareLinks === "function") updateShareLinks();
             return;
           }
-
+          // --- Fetch (cache first) ---
           let rows = [];
           let usedCache = false;
           let usedMock = false;
@@ -439,10 +675,9 @@
             if (cached) {
               rows = JSON.parse(cached) || [];
               usedCache = rows.length > 0;
-              console.log("[Variety] Loaded from cache", cacheKey, rows.length);
             }
-          } catch (ce) {
-            console.warn("[Variety] Cache read failed", ce);
+          } catch (e) {
+            console.warn("[Variety] cache read fail", e);
           }
           if (!rows.length) {
             const bases = buildApiCandidates();
@@ -485,38 +720,26 @@
             rows = data.rows || [];
           }
           const wanted = variety.toLowerCase();
-          // exact
           let rowFuzzy = rows.find(
             (r) => r.variety && r.variety.toLowerCase() === wanted
           );
-          // reverse include (e.g. 'Kullu Delicious' vs 'Delicious')
           if (!rowFuzzy)
             rowFuzzy = rows.find(
               (r) => r.variety && r.variety.toLowerCase().includes(wanted)
             );
-          // forward include (requested contains row variety)
           if (!rowFuzzy)
             rowFuzzy = rows.find((r) =>
               wanted.includes(r.variety.toLowerCase())
             );
-          console.log(
-            "[Variety] Requested param =",
-            variety,
-            "Matched row =",
-            rowFuzzy
-          );
           if (!rowFuzzy) {
             wrap.innerHTML = `<div class="empty">No price data for "${variety}".<br/><br/>Available: ${
               rows.map((r) => r.variety).join(", ") || "—"
             }</div>`;
             return;
           }
-          // Update the visible hero name with the exact matched variety (not the raw query param) for clarity
           if (rowFuzzy.variety) setVarietyTitle(rowFuzzy.variety);
           const current = rowFuzzy.pricePerBox;
-
-          // --- Synthetic Historical Series ---
-          // Start: 10 Sep 2025 (base 1000)
+          // --- Synthetic history (random walk) ---
           const START_DATE = new Date("2025-09-10T00:00:00");
           const today = new Date();
           const zero = (d) => {
@@ -526,124 +749,34 @@
           };
           const start = zero(START_DATE);
           const end = zero(today);
-          // Build date list from start .. today
           const dates = [];
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
             dates.push(new Date(d));
           }
-          // Generate prices up to yesterday (random walk), then plug current for today
           let price = 1000;
           const series = dates.map((d, i) => {
-            if (i === dates.length - 1) {
-              // today uses live current price
-              return { date: d, value: current };
-            }
+            if (i === dates.length - 1) return { date: d, value: current };
             if (i > 0) {
-              // drift +/-3% with mild smoothing
-              const drift = (Math.random() - 0.5) * 0.06; // ±6% raw
-              price = Math.max(200, Math.round(price * (1 + drift / 2))); // narrow actual impact
+              const drift = (Math.random() - 0.5) * 0.06;
+              price = Math.max(200, Math.round(price * (1 + drift / 2)));
             }
             return { date: d, value: price };
           });
-
-          const last = series[series.length - 1];
-          const prev = series[series.length - 2];
-          const dayChangeVal = last && prev ? last.value - prev.value : 0;
-          const pct = prev ? (dayChangeVal / prev.value) * 100 : 0;
-
-          const labels = series.map((pt) => formatDate(pt.date));
-          const values = series.map((pt) => pt.value);
-
-          wrap.innerHTML = '<canvas id="priceChart" height="300"></canvas>';
-          const ctx = document.getElementById("priceChart").getContext("2d");
-          const up = dayChangeVal >= 0;
-          const lineColor = up ? "#059669" : "#dc2626";
-          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(
-            0,
-            up ? "rgba(5,150,105,.35)" : "rgba(220,38,38,.35)"
-          );
-          gradient.addColorStop(
-            1,
-            up ? "rgba(5,150,105,0)" : "rgba(220,38,38,0)"
-          );
-          const midValue = (Math.min(...values) + Math.max(...values)) / 2;
-          const midlinePlugin = {
-            id: "midline",
-            afterDraw(chart) {
-              const {
-                ctx,
-                chartArea: { left, right },
-                scales: { y },
-              } = chart;
-              const yPx = y.getPixelForValue(midValue);
-              ctx.save();
-              ctx.setLineDash([4, 4]);
-              ctx.strokeStyle = "rgba(0,0,0,.08)";
-              ctx.beginPath();
-              ctx.moveTo(left, yPx);
-              ctx.lineTo(right, yPx);
-              ctx.stroke();
-              ctx.restore();
-            },
-          };
-          const labelDates = series.map((s) => s.date);
-          new Chart(ctx, {
-            type: "line",
-            data: {
-              labels,
-              datasets: [
-                {
-                  label: "Price",
-                  data: values,
-                  borderColor: lineColor,
-                  borderWidth: 2.2,
-                  spanGaps: true,
-                  pointRadius: (c) =>
-                    c.dataIndex === values.length - 1 ? 5 : 0,
-                  pointHoverRadius: 6,
-                  pointBackgroundColor: lineColor,
-                  fill: { target: "origin", above: gradient },
-                  tension: 0.28,
-                },
-              ],
-            },
-            options: {
-              maintainAspectRatio: false,
-              animation: { duration: 600 },
-              interaction: { intersect: false, mode: "index" },
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  displayColors: false,
-                  callbacks: { label: (c) => "₹" + c.parsed.y },
-                },
-              },
-              scales: { x: { display: false }, y: { display: false } },
-              weekInfo: {
-                labelDates,
-                startDateMs: labelDates[0]?.getTime() || Date.now(),
-              },
-            },
-            plugins: [midlinePlugin, guidelinePlugin, weekGridPlugin],
-          });
-          setOverlay(last.value, prev?.value);
-          const fmt = new Intl.NumberFormat("en-IN");
+          state.fullSeries = series;
+          // choose default range
+          if (series.length > 7) selectedRange = "1W";
+          if (series.length <= 2) selectedRange = "1D";
+          if (series.length >= 30) selectedRange = "Full";
           document.getElementById("varietyPrice").textContent =
-            "₹" + fmt.format(current);
-          const chEl = document.getElementById("varietyChange");
-          chEl.textContent = `${
-            (dayChangeVal >= 0 ? "+" : "") + fmt.format(dayChangeVal)
-          } (${(pct >= 0 ? "+" : "") + pct.toFixed(2)}%) 1D`;
-          chEl.classList.toggle("up", up);
-          chEl.classList.toggle("down", !up);
-          const stampEl = document.getElementById("dataStamp");
-          stampEl.textContent =
+            "₹" + globalFmt.format(current);
+          document.getElementById("dataStamp").textContent =
             new Date().toLocaleString() +
             (usedCache ? " • Cached" : usedMock ? " • Mock" : "");
+          renderChart();
+          if (typeof updateShareLinks === "function") updateShareLinks();
         } catch (e) {
-          let detail = (e && e.message) || String(e);
-          let triedList =
+          const detail = (e && e.message) || String(e);
+          const triedList =
             Array.isArray(attempted) && attempted.length
               ? attempted
                   .map((u) =>
@@ -684,6 +817,43 @@
         >← Back</a
       >
       <div style="font-size: 0.9rem; opacity: 0.7">Kashmir Apple Prices</div>
+      <a
+        href="https://www.google.com/maps/search/cold+storage+near+me"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          margin-left: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.7rem;
+          text-decoration: none;
+          background: #fff;
+          border: 1px solid #eee;
+          padding: 6px 10px;
+          border-radius: 20px;
+          color: #b5482c;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        "
+        aria-label="Find Cold Storage near me"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M3 10l9-7 9 7v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H3v-9z"
+          />
+        </svg>
+        <span>Find Cold Storage</span>
+      </a>
     </header>
     <main>
       <a class="back-inline" onclick="history.back()" aria-label="Go back"
@@ -703,8 +873,185 @@
         <div class="stamp">Updated <span id="dataStamp">—</span></div>
       </div>
       <section id="chartWrap">
+        <div class="range-tabs" id="rangeTabs">
+          <button data-range="1D" class="active">1D</button>
+          <button data-range="1W">1W</button>
+          <button data-range="Full">Full</button>
+        </div>
         <div id="chartInner"></div>
       </section>
+      <div class="share-inline" id="shareBar">
+        <span class="share-label">Share</span>
+        <button
+          type="button"
+          class="share-icon copy"
+          id="shareCopy"
+          aria-label="Copy link"
+        >
+          <i class="fa-solid fa-link"></i>
+        </button>
+        <a
+          class="share-icon wa"
+          id="shareWA"
+          target="_blank"
+          rel="noopener"
+          aria-label="Share on WhatsApp"
+          ><i class="fa-brands fa-whatsapp"></i
+        ></a>
+        <a
+          class="share-icon tg"
+          id="shareTG"
+          target="_blank"
+          rel="noopener"
+          aria-label="Share on Telegram"
+          ><i class="fa-brands fa-telegram"></i
+        ></a>
+      </div>
+      <section class="overview" id="overviewSection">
+        <h2>Overview</h2>
+        <div class="ov-row">
+          <div class="ov-item">
+            <span class="ov-label">Current Price</span>
+            <span class="ov-value" id="ovCurrentPrice">₹—</span>
+          </div>
+          <div class="ov-item">
+            <span class="ov-label">Average Weight / Box</span>
+            <span class="ov-value" id="ovAvgWeight">15 KGs</span>
+          </div>
+        </div>
+        <div class="ov-desc-wrapper">
+          <div class="ov-desc-label">Description</div>
+          <p class="ov-desc" id="ovDesc">Loading description...</p>
+        </div>
+      </section>
     </main>
+    <script>
+      function updateShareLinks() {
+        const varietyTitle = (
+          document.getElementById("varietyTitle")?.textContent || "Variety"
+        ).trim();
+        const mandiTitle = (
+          document.getElementById("mandiName")?.textContent || ""
+        ).trim();
+        const url = location.href.split("#")[0];
+        const text = `Price for ${varietyTitle} (${mandiTitle}) - Kashmir Apple Prices`;
+        const wa = document.getElementById("shareWA");
+        const tg = document.getElementById("shareTG");
+        if (wa)
+          wa.href = `https://wa.me/?text=${encodeURIComponent(
+            text + " " + url
+          )}`;
+        if (tg)
+          tg.href = `https://t.me/share/url?url=${encodeURIComponent(
+            url
+          )}&text=${encodeURIComponent(text)}`;
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        // attempt to update if data already loaded quickly
+        setTimeout(updateShareLinks, 800);
+        const copyBtn = document.getElementById("shareCopy");
+        copyBtn?.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(location.href.split("#")[0]);
+            copyBtn.classList.add("copied");
+            const orig = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => {
+              copyBtn.classList.remove("copied");
+              copyBtn.innerHTML = orig;
+            }, 1400);
+          } catch (e) {
+            alert("Copy failed");
+          }
+        });
+        // Populate Overview after small delay to ensure price loaded
+        setTimeout(() => {
+          try {
+            populateOverviewSection();
+          } catch (e) {}
+        }, 1200);
+      });
+      function populateOverviewSection() {
+        const priceEl = document.getElementById("varietyPrice");
+        const ovPriceEl = document.getElementById("ovCurrentPrice");
+        if (priceEl && ovPriceEl) {
+          ovPriceEl.textContent = priceEl.textContent.replace(/\s+/g, "");
+        }
+        const weightEl = document.getElementById("ovAvgWeight");
+        const vNameRaw = (
+          document.getElementById("varietyTitle")?.textContent || ""
+        ).trim();
+        const vName = vNameRaw.toLowerCase();
+        let w = 15;
+        if (/delicious|american|washington/.test(vName)) w = 16;
+        if (/kullu|ambri/.test(vName)) w = 14;
+        weightEl.textContent = w + " KGs";
+        const descEl = document.getElementById("ovDesc");
+        if (descEl) {
+          const basePhrases = [
+            "consistent grading",
+            "firm texture",
+            "aroma retention",
+            "market preference",
+            "handling resilience",
+            "colour development",
+            "packing efficiency",
+            "cool-chain stability",
+            "grower confidence",
+            "buyer demand",
+            "shelf performance",
+            "shape uniformity",
+            "pricing momentum",
+            "supply pattern",
+            "seasonal arrival window",
+          ];
+          let seed = 0;
+          for (const ch of vName) {
+            seed = (seed + ch.charCodeAt(0) * 17) % 9973;
+          }
+          function pick(i) {
+            return basePhrases[(seed + i * 7) % basePhrases.length];
+          }
+          const proper = vNameRaw ? vNameRaw : "This variety";
+          const sentences = [];
+          sentences.push(
+            `${proper} shows ${pick(1)} and ${pick(
+              2
+            )}, supporting steady trading through the current harvest phase.`
+          );
+          sentences.push(
+            `Current pricing reflects ${pick(3)} plus ${pick(4)}, while ${pick(
+              5
+            )} aids packhouse turnaround and logistics planning.`
+          );
+          sentences.push(
+            `Grower sentiment remains shaped by ${pick(6)} and ${pick(
+              7
+            )}, with logistics timing influenced by ${pick(
+              8
+            )} and regional weather discipline.`
+          );
+          sentences.push(
+            `Packhouses report that ${pick(9)} and ${pick(
+              10
+            )} together underpin forward enquiry, moderating volatility and smoothing dispatch cycles.`
+          );
+          sentences.push(
+            `Mid-season adjustments in ${pick(11)} alongside ${pick(
+              12
+            )} have encouraged calibrated release strategies to prevent oversupply pockets.`
+          );
+          sentences.push(
+            `Forward outlook balances ${pick(13)} visibility with ${pick(
+              14
+            )} variability, keeping stakeholders attentive to auction signals and terminal market absorption rates.`
+          );
+          const text = sentences.join(" ");
+          const words = text.split(/\s+/).slice(0, 150);
+          descEl.textContent =
+            words.join(" ") + (words.length >= 150 ? "." : "");
+        }
+      }
+    </script>
   </body>
 </html>
