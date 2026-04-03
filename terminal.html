@@ -286,12 +286,11 @@
 
       const API_BASE = (() => {
         const meta = document.querySelector('meta[name="api-base"]');
-        let base = (
+        const base = (
           window.__API_BASE__ ||
           (meta && meta.getAttribute("content")) ||
           ""
         ).replace(/\/$/, "");
-        if (!base && location.protocol === "file:") base = "http://localhost:4000";
         return base;
       })();
 
@@ -354,7 +353,6 @@
         const out = [];
         if (API_BASE) out.push(API_BASE);
         if (!API_BASE && /^https?:/.test(location.protocol)) out.push("");
-        if (!out.includes("http://localhost:4000")) out.push("http://localhost:4000");
         return out;
       }
 
@@ -556,6 +554,5 @@
 
       window.addEventListener("DOMContentLoaded", renderVarieties);
     </script>
-    <script src="script.js"></script>
   </body>
 </html>
