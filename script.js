@@ -504,3 +504,155 @@ function initFAQAccordion() {
 }
 
 window.addEventListener("DOMContentLoaded", initFAQAccordion);
+
+// -------- Smart Filters & Comparison Overlay --------
+
+window.addEventListener("DOMContentLoaded", () => {
+  // Update price range text
+  const priceInput = document.getElementById("filter-price");
+  const priceVal = document.getElementById("price-val");
+  if (priceInput && priceVal) {
+    priceInput.addEventListener("input", (e) => {
+      priceVal.textContent = "₹" + Number(e.target.value).toLocaleString();
+    });
+  }
+
+  // Modal logic
+  const compareBtn = document.getElementById("btn-compare-toggle");
+  const modal = document.getElementById("compare-modal");
+  const closeBtn = document.getElementById("compare-close");
+
+  if(compareBtn && modal && closeBtn) {
+    compareBtn.addEventListener("click", () => {
+      modal.classList.add("show");
+      updateComparison();
+    });
+    
+    closeBtn.addEventListener("click", () => {
+      modal.classList.remove("show");
+    });
+    
+    // Close on click outside
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) modal.classList.remove("show");
+    });
+  }
+
+  // Comparison Logic
+  const compVar = document.getElementById("comp-variety");
+  const compM1 = document.getElementById("comp-m1");
+  const compM2 = document.getElementById("comp-m2");
+
+  [compVar, compM1, compM2].forEach(el => {
+    if(el) el.addEventListener("change", updateComparison);
+  });
+
+  function getMockPrice(mandi, variety) {
+    const base = {
+      delicious: 1300,
+      american: 1400,
+      kullu: 1350,
+      gala: 1250
+    }[variety] || 1300;
+
+    const modifier = {
+      shopian: 0,
+      sopore: 20,
+      azadpur: 180,
+      mumbai: 220
+    }[mandi] || 0;
+
+    return base + modifier;
+  }
+
+  function getMandiName(id) {
+    const names = {
+      shopian: "Shopian",
+      sopore: "Sopore",
+      azadpur: "Azadpur",
+      mumbai: "Vashi"
+    };
+    return names[id] || id;
+  }
+
+  function updateComparison() {
+    if(!compVar) return;
+    
+    const v = compVar.value;
+    const m1 = compM1.value;
+    const m2 = compM2.value;
+
+    const p1 = getMockPrice(m1, v);
+    const p2 = getMockPrice(m2, v);
+
+    document.getElementById("vs-m1-name").textContent = getMandiName(m1);
+    document.getElementById("vs-m1-price").textContent = "₹" + p1.toLocaleString();
+    
+    document.getElementById("vs-m2-name").textContent = getMandiName(m2);
+    document.getElementById("vs-m2-price").textContent = "₹" + p2.toLocaleString();
+
+    const c1 = document.getElementById("vs-card-1");
+    const c2 = document.getElementById("vs-card-2");
+    
+    c1.classList.remove("winner");
+    c2.classList.remove("winner");
+
+    let diff = Math.abs(p1 - p2);
+    let pct = ((diff / Math.min(p1, p2)) * 100).toFixed(1);
+
+    const diffEl = document.getElementById("comp-diff-val");
+    const recEl = document.getElementById("comp-recommendation");
+    
+    if (p1 === p2) {
+      diffEl.textContent = "Prices are identical";
+      recEl.innerHTML = `Rates are similar. Sell in <strong>${getMandiName(m1)}</strong> to save transport time.`;
+    } else if (p1 > p2) {
+      c1.classList.add("winner");
+      diffEl.textContent = `₹${diff} higher (${pct}%)`;
+      recEl.innerHTML = `Sell in <strong>${getMandiName(m1)}</strong> today for better returns. Demand is robust.`;
+    } else {
+      c2.classList.add("winner");
+      diffEl.textContent = `₹${diff} higher (${pct}%)`;
+      recEl.innerHTML = `Sell in <strong>${getMandiName(m2)}</strong> today for better returns. Demand is robust.`;
+    }
+  }
+});
+
+
+// -------- Community Form Logic --------
+window.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("price-submit-form");
+  const successMsg = document.getElementById("form-success");
+  
+  if(form && successMsg) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const btn = form.querySelector(".btn-submit");
+      const originalText = btn.textContent;
+      
+      // Simulate network request
+      btn.textContent = "Submitting...";
+      btn.style.opacity = "0.7";
+      btn.style.pointerEvents = "none";
+      
+      setTimeout(() => {
+        // Show success
+        btn.style.display = "none";
+        successMsg.style.display = "block";
+        
+        // Reset form inputs (optional but good practice)
+        form.reset();
+        
+        // Reset state after 4 seconds to allow new submissions
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.display = "block";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+          successMsg.style.display = "none";
+        }, 4000);
+      }, 800);
+    });
+  }
+});

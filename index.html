@@ -77,316 +77,687 @@
       </div>
     </header>
 
-    <!-- Hero Section (moved outside constrained .page) -->
+    <!-- Hero Section -->
     <section class="hero-landing" id="top">
       <div class="hero-inner">
         <div class="hero-text">
-          <div class="hero-pill" aria-label="Update cadence">
-            Daily Mandi Snapshots
-          </div>
-          <h1 class="hero-title">
-            <span class="grad">Kashmir Apple Prices</span><br />Made Easy For
-            Everyone
-          </h1>
+          <div class="hero-label">Live Mandi Price Tracker</div>
+          <h1 class="hero-title">Live Apple Mandi Prices Across Kashmir</h1>
           <p class="hero-sub">
-            Track fresh wholesale box rates from key mandis, compare varieties,
-            monitor demand tone and submit your own verified prices to improve
-            market transparency.
+            Track wholesale rates, compare mandis, and make better selling decisions
           </p>
+          <div class="hero-trust">Last updated 2 mins ago &bull; Data from Sopore, Shopian, Azadpur</div>
+          <div class="hero-stats">Tracking 5+ mandis &bull; 10,000+ boxes daily</div>
           <div class="hero-actions">
-            <a
-              href="#shopian-mandi"
-              class="cta-btn"
-              aria-label="Jump to today prices"
-              >View Today's Prices</a
-            >
-            <a
-              href="submit.html"
-              class="cta-link"
-              aria-label="Submit your market prices"
-              >Submit Prices</a
-            >
+            <a href="#shopian-mandi" class="btn-primary">View Today's Prices</a>
+            <a href="submit.html" class="btn-secondary">Submit Price</a>
           </div>
-          <ul class="hero-points" aria-label="Key features">
-            <li>Shopian · Sopore · Azadpur · Vashi</li>
-            <li>Variety drill-down analytics</li>
-            <li>Fast fallback & caching</li>
-          </ul>
         </div>
-        <div class="hero-media" aria-hidden="true">
-          <div class="mock-phone">
-            <header>Today</header>
-            <ul>
-              <li><span>Delicious</span><strong>₹1,300</strong></li>
-              <li><span>Gala</span><strong>₹1,240</strong></li>
-              <li><span>American</span><strong>₹1,360</strong></li>
-              <li><span>Golden</span><strong>₹1,180</strong></li>
+        <div class="hero-visual">
+          <div class="dashboard-card">
+            <div class="dash-header">
+              <span class="dash-dot red"></span>
+              <span class="dash-dot yellow"></span>
+              <span class="dash-dot green"></span>
+            </div>
+            <div class="dash-title">Today's Live Prices</div>
+            <ul class="dash-list">
+              <li>
+                <span class="dash-variety">Delicious</span>
+                <span class="dash-price">₹1,320<span class="ind up">&uarr;</span></span>
+              </li>
+              <li>
+                <span class="dash-variety">American</span>
+                <span class="dash-price">₹1,450<span class="ind up">&uarr;</span></span>
+              </li>
+              <li>
+                <span class="dash-variety">Gala</span>
+                <span class="dash-price">₹1,240<span class="ind down">&darr;</span></span>
+              </li>
+              <li>
+                <span class="dash-variety">Kullu</span>
+                <span class="dash-price">₹1,180<span class="ind up">&uarr;</span></span>
+              </li>
             </ul>
           </div>
-          <div class="floating-card fc-1">
-            <h4>Shopian</h4>
-            <p>
-              <span class="dot up"></span> Today: Delicious ₹1,300 · American
-              ₹1,410
-            </p>
+          
+          <div class="float-card fc-left">
+            Shopian: ₹1300 <span class="ind up">&uarr;</span>
           </div>
-          <div class="floating-card fc-2">
-            <h4>Azadpur</h4>
-            <p>
-              <span class="dot stable"></span> Today: Avg box ₹1,480 · Premium
-              ₹1,560
-            </p>
+          <div class="float-card fc-right">
+            Azadpur: ₹1450 <span class="ind up">&uarr;</span>
           </div>
         </div>
       </div>
     </section>
+    
+    <!-- Smart Filter & Compare Bar -->
+    <div class="smart-toolbar" id="smart-toolbar">
+      <div class="toolbar-inner">
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label for="filter-mandi">Mandi</label>
+            <select id="filter-mandi">
+              <option value="all">All Mandis</option>
+              <option value="shopian">Shopian</option>
+              <option value="sopore">Sopore</option>
+              <option value="azadpur">Azadpur</option>
+              <option value="mumbai">Vashi</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-variety">Variety</label>
+            <select id="filter-variety">
+              <option value="all">All Varieties</option>
+              <option value="delicious">Delicious</option>
+              <option value="american">American</option>
+              <option value="kullu">Kullu</option>
+              <option value="gala">Gala</option>
+            </select>
+          </div>
+          <div class="filter-group range-group">
+            <label for="filter-price">Min Price: <span id="price-val">₹1,000</span></label>
+            <input type="range" id="filter-price" min="1000" max="2000" step="50" value="1000">
+          </div>
+          <button id="btn-reset" class="btn-ghost">Reset</button>
+        </div>
+        <div class="toolbar-actions">
+          <button id="btn-compare-toggle" class="btn-compare">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M3 8V3h5M21 21L3 3"></path></svg>
+            Compare Mandis
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Modal Overlay -->
+    <div class="compare-modal" id="compare-modal">
+      <div class="compare-modal-content">
+        <button class="compare-close" id="compare-close">&times;</button>
+        <h2 class="compare-title">Smart Mandi Comparison</h2>
+        
+        <div class="compare-selections">
+          <div class="cs-group">
+            <label>Variety</label>
+            <select id="comp-variety">
+              <option value="delicious">Delicious</option>
+              <option value="american">American</option>
+              <option value="kullu">Kullu</option>
+              <option value="gala">Gala</option>
+            </select>
+          </div>
+          <div class="cs-group">
+            <label>Mandi 1</label>
+            <select id="comp-m1">
+              <option value="shopian">Shopian (Local)</option>
+              <option value="sopore">Sopore (Local)</option>
+              <option value="azadpur">Azadpur (Terminal)</option>
+              <option value="mumbai">Vashi (Terminal)</option>
+            </select>
+          </div>
+          <div class="cs-group">
+            <label>Mandi 2</label>
+            <select id="comp-m2">
+              <option value="shopian">Shopian (Local)</option>
+              <option value="sopore">Sopore (Local)</option>
+              <option value="azadpur" selected>Azadpur (Terminal)</option>
+              <option value="mumbai">Vashi (Terminal)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="compare-vs">
+          <div class="vs-card" id="vs-card-1">
+            <h3 class="vs-mandi" id="vs-m1-name">Shopian</h3>
+            <p class="vs-price" id="vs-m1-price">₹1,300</p>
+          </div>
+          <div class="vs-divider">VS</div>
+          <div class="vs-card winner" id="vs-card-2">
+            <h3 class="vs-mandi" id="vs-m2-name">Azadpur</h3>
+            <p class="vs-price" id="vs-m2-price">₹1,480</p>
+          </div>
+        </div>
+
+        <div class="compare-result">
+          <div class="diff-chip">Difference: <strong id="comp-diff-val">₹180 higher (13.8%)</strong></div>
+          <div class="comp-recommendation" id="comp-recommendation">
+            Sell in <strong>Azadpur</strong> today for better returns. Demand is robust.
+          </div>
+          <div class="comp-insight" id="comp-insight">
+            * Extra insight: Terminal markets usually have better premiums but higher transport fees.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <main class="page">
       <!-- Shopian Mandi Section -->
       <section class="stock-section" id="shopian-mandi">
-        <div class="section-head">
-          <h2>Shopian Mandi</h2>
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
+          <h2>Overview - Shopian Mandi</h2>
         </div>
         <div class="stock-grid">
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>DL</span></div>
-            <h3 class="stock-name">Delicious</h3>
-            <p class="price">₹1,300</p>
-            <p class="change up">+50 (2.5%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">DL</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Delicious</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,300</p>
+              <p class="change up">&uarr; +50 (2.5%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1270</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>AM</span></div>
-            <h3 class="stock-name">American</h3>
-            <p class="price">₹1,410</p>
-            <p class="change up">+30 (2.2%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">AM</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">American</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,410</p>
+              <p class="change up">&uarr; +30 (2.2%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1380</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>KU</span></div>
-            <h3 class="stock-name">Kullu</h3>
-            <p class="price">₹1,340</p>
-            <p class="change down">-20 (1.5%)</p>
+          <article class="stock-card down" ">
+            <div class="card-top">
+              <div class="card-badge">KU</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Kullu</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,340</p>
+              <p class="change down">&darr; -20 (1.5%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1360</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag oversupply">Oversupply</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>GA</span></div>
-            <h3 class="stock-name">Gala</h3>
-            <p class="price">₹1,250</p>
-            <p class="change up">+40 (3.3%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">GA</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Gala</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,250</p>
+              <p class="change up">&uarr; +40 (3.3%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1220</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
         </div>
       </section>
 
       <!-- Sopore Mandi Section  -->
       <section class="stock-section" id="sopore-mandi">
-        <div class="section-head">
-          <h2>Sopore Mandi</h2>
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
+          <h2>Overview - Sopore Mandi</h2>
         </div>
         <div class="stock-grid">
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>DL</span></div>
-            <h3 class="stock-name">Delicious</h3>
-            <p class="price">₹1,320</p>
-            <p class="change up">+18 (1.4%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">DL</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Delicious</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,320</p>
+              <p class="change up">&uarr; +18 (1.4%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1290</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>AM</span></div>
-            <h3 class="stock-name">American</h3>
-            <p class="price">₹1,425</p>
-            <p class="change up">+12 (0.8%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">AM</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">American</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,425</p>
+              <p class="change up">&uarr; +12 (0.8%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1395</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>KU</span></div>
-            <h3 class="stock-name">Kullu</h3>
-            <p class="price">₹1,455</p>
-            <p class="change down">-12 (0.8%)</p>
+          <article class="stock-card down" ">
+            <div class="card-top">
+              <div class="card-badge">KU</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Kullu</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,455</p>
+              <p class="change down">&darr; -12 (0.8%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1475</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag oversupply">Oversupply</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>GA</span></div>
-            <h3 class="stock-name">Gala</h3>
-            <p class="price">₹1,275</p>
-            <p class="change down">-10 (0.7%)</p>
+          <article class="stock-card down" ">
+            <div class="card-top">
+              <div class="card-badge">GA</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Gala</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,275</p>
+              <p class="change down">&darr; -10 (0.7%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1295</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag oversupply">Oversupply</span>
+            </div>
           </article>
         </div>
       </section>
 
       <!-- Delhi Mandi Section -->
       <section class="stock-section" id="delhi-mandi">
-        <div class="section-head">
-          <h2>Delhi Mandi (Azadpur)</h2>
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
+          <h2>Overview - Delhi Mandi (Azadpur)</h2>
         </div>
         <div class="stock-grid">
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>DL</span></div>
-            <h3 class="stock-name">Delicious</h3>
-            <p class="price">₹1,480</p>
-            <p class="change up">+25 (1.7%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">DL</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Delicious</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,480</p>
+              <p class="change up">&uarr; +25 (1.7%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1450</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>AM</span></div>
-            <h3 class="stock-name">American</h3>
-            <p class="price">₹1,560</p>
-            <p class="change up">+40 (2.6%)</p>
+          <article class="stock-card up" best-price">
+            <div class="card-top">
+              <div class="card-badge">AM</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">American</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,560</p>
+              <p class="change up">&uarr; +40 (2.6%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1530</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag best-price-tag">Best Price Today</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>KU</span></div>
-            <h3 class="stock-name">Kullu</h3>
-            <p class="price">₹1,620</p>
-            <p class="change down">-30 (1.8%)</p>
+          <article class="stock-card down" best-price">
+            <div class="card-top">
+              <div class="card-badge">KU</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Kullu</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,620</p>
+              <p class="change down">&darr; -30 (1.8%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1640</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag best-price-tag">Best Price Today</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>GA</span></div>
-            <h3 class="stock-name">Gala</h3>
-            <p class="price">₹1,350</p>
-            <p class="change down">-20 (1.5%)</p>
+          <article class="stock-card down" ">
+            <div class="card-top">
+              <div class="card-badge">GA</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Gala</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,350</p>
+              <p class="change down">&darr; -20 (1.5%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1370</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag oversupply">Oversupply</span>
+            </div>
           </article>
         </div>
       </section>
 
       <!-- Mumbai Mandi Section -->
       <section class="stock-section" id="mumbai-mandi">
-        <div class="section-head">
-          <h2>Mumbai Mandi (Vashi)</h2>
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
+          <h2>Overview - Mumbai Mandi (Vashi)</h2>
         </div>
         <div class="stock-grid">
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>DL</span></div>
-            <h3 class="stock-name">Delicious</h3>
-            <p class="price">₹1,520</p>
-            <p class="change up">+30 (2.0%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">DL</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Delicious</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,520</p>
+              <p class="change up">&uarr; +30 (2.0%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1490</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>AM</span></div>
-            <h3 class="stock-name">American</h3>
-            <p class="price">₹1,600</p>
-            <p class="change up">+50 (3.2%)</p>
+          <article class="stock-card up" best-price">
+            <div class="card-top">
+              <div class="card-badge">AM</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">American</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,600</p>
+              <p class="change up">&uarr; +50 (3.2%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1570</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag best-price-tag">Best Price Today</span>
+            </div>
           </article>
-          <article class="stock-card down">
-            <div class="logo" aria-hidden="true"><span>KU</span></div>
-            <h3 class="stock-name">Kullu</h3>
-            <p class="price">₹1,660</p>
-            <p class="change down">-25 (1.5%)</p>
+          <article class="stock-card down" best-price">
+            <div class="card-top">
+              <div class="card-badge">KU</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Kullu</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,660</p>
+              <p class="change down">&darr; -25 (1.5%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1680</span>
+              <div class="sparkline down"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag best-price-tag">Best Price Today</span>
+            </div>
           </article>
-          <article class="stock-card up">
-            <div class="logo" aria-hidden="true"><span>GA</span></div>
-            <h3 class="stock-name">Gala</h3>
-            <p class="price">₹1,380</p>
-            <p class="change up">+35 (2.6%)</p>
+          <article class="stock-card up" ">
+            <div class="card-top">
+              <div class="card-badge">GA</div>
+              <div class="card-title-group">
+                <h3 class="stock-name">Gala</h3>
+                <span class="card-time">Updated 12:42 PM</span>
+              </div>
+            </div>
+            <div class="card-main">
+              <p class="price">₹1,380</p>
+              <p class="change up">&uarr; +35 (2.6%)</p>
+            </div>
+            <div class="card-extra">
+              <span class="yesterday">Yesterday: ₹1350</span>
+              <div class="sparkline up"></div>
+            </div>
+            <div class="card-insight">
+              <span class="insight-tag high-demand">High Demand</span>
+            </div>
           </article>
         </div>
       </section>
 
-      <section class="varieties-section" id="apple-varieties">
-        <h2>Market Arrivals & Demand (Boxes)</h2>
-        <div
-          class="varieties-card"
-          role="table"
-          aria-label="Apple varieties trend"
-        >
-          <div class="var-row head" role="row">
-            <div class="col variety-col" role="columnheader">Variety</div>
-            <div class="col trend-col" role="columnheader">Supply / Demand</div>
-            <div class="col change-col" role="columnheader">
-              1D price change
+      
+      <!-- Section 1: Market Insights -->
+      <section class="insights-section" id="market-insights">
+        <div class="section-head">
+          <p class="section-sub">Data-Driven Intelligence</p>
+          <h2>Market Insights Today</h2>
+        </div>
+        <div class="insights-grid">
+          <article class="insight-card">
+            <h3 class="insight-variety">Delicious</h3>
+            <div class="ratio-viz">
+              <div class="ratio-text">Demand 72% &bull; Supply 28%</div>
+              <div class="ratio-bar"><div class="ratio-fill demand" style="width: 72%;"></div></div>
             </div>
+            <div class="insight-tags">
+              <span class="insight-tag high-demand">High Demand</span>
+              <span class="price-pressure rise">&#8599; Prices likely to rise</span>
+            </div>
+            <p class="insight-desc">Higher demand than supply in Sopore and Azadpur mandis</p>
+          </article>
+          
+          <article class="insight-card">
+            <h3 class="insight-variety">American</h3>
+            <div class="ratio-viz">
+              <div class="ratio-text">Demand 50% &bull; Supply 50%</div>
+              <div class="ratio-bar"><div class="ratio-fill balanced" style="width: 50%;"></div></div>
+            </div>
+            <div class="insight-tags">
+              <span class="insight-tag stable">Balanced</span>
+              <span class="price-pressure stable">&#8594; Stable trend</span>
+            </div>
+            <p class="insight-desc">Arrivals closely matching dispatch rates across most markets</p>
+          </article>
+
+          <article class="insight-card">
+            <h3 class="insight-variety">Kullu</h3>
+            <div class="ratio-viz">
+              <div class="ratio-text">Demand 35% &bull; Supply 65%</div>
+              <div class="ratio-bar"><div class="ratio-fill supply" style="width: 35%;"></div></div>
+            </div>
+            <div class="insight-tags">
+              <span class="insight-tag oversupply">Oversupply</span>
+              <span class="price-pressure drop">&#8600; Prices under pressure</span>
+            </div>
+            <p class="insight-desc">Heavy influx in Vashi dragging down premium grades</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Section 2: Tomorrow's Outlook -->
+      <section class="insights-section prediction-section" id="tomorrows-outlook">
+        <div class="section-head">
+          <p class="section-sub">Predictive Analysis</p>
+          <h2>Tomorrow's Outlook</h2>
+        </div>
+        <div class="prediction-grid">
+          <article class="prediction-card">
+            <div class="pred-header">
+              <span class="pred-icon up">&#8593;</span>
+              <div class="pred-title">
+                <h3>Delicious</h3>
+                <span class="pred-dir up">Likely Increase</span>
+              </div>
+            </div>
+            <div class="pred-conf">Confidence: <strong>High</strong></div>
+            <p class="pred-reason">Demand consistently rising over the last 2 days in terminal markets.</p>
+          </article>
+
+          <article class="prediction-card">
+            <div class="pred-header">
+              <span class="pred-icon down">&#8595;</span>
+              <div class="pred-title">
+                <h3>Kullu</h3>
+                <span class="pred-dir down">Likely Decrease</span>
+              </div>
+            </div>
+            <div class="pred-conf">Confidence: <strong>Medium</strong></div>
+            <p class="pred-reason">Significant un-sold stock accumulation observed in Azadpur.</p>
+          </article>
+
+          <article class="prediction-card">
+            <div class="pred-header">
+              <span class="pred-icon stable">&#8594;</span>
+              <div class="pred-title">
+                <h3>American</h3>
+                <span class="pred-dir stable">Stable</span>
+              </div>
+            </div>
+            <div class="pred-conf">Confidence: <strong>High</strong></div>
+            <p class="pred-reason">Cold storage releases are matching current procurement speeds.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Section 3 & 4: Submit Price & Trust Activity -->
+      <section class="community-section" id="submit-price">
+        <div class="section-head">
+          <p class="section-sub">Crowdsourced Data</p>
+          <h2>Submit Your Mandi Price</h2>
+        </div>
+        <div class="community-grid">
+          <div class="community-form-card">
+            <form id="price-submit-form" class="price-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="sub-mandi">Mandi</label>
+                  <select id="sub-mandi" required>
+                    <option value="" disabled selected>Select Mandi</option>
+                    <option value="shopian">Shopian</option>
+                    <option value="sopore">Sopore</option>
+                    <option value="other">Other Local</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="sub-variety">Variety</label>
+                  <select id="sub-variety" required>
+                    <option value="" disabled selected>Select Variety</option>
+                    <option value="delicious">Delicious</option>
+                    <option value="american">American</option>
+                    <option value="kullu">Kullu</option>
+                    <option value="gala">Gala</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="sub-price">Price Sold At (₹ per box)</label>
+                <input type="number" id="sub-price" placeholder="e.g. 1350" required min="500" max="3000">
+              </div>
+              <div class="form-group file-group">
+                <label for="sub-proof">Upload Receipt/Proof (Optional)</label>
+                <input type="file" id="sub-proof" accept="image/*" class="file-input">
+              </div>
+              <button type="submit" class="btn-primary btn-submit">Submit Price</button>
+              
+              <div class="form-success" id="form-success" style="display:none;">
+                <p class="success-msg">&#9989; Price submitted successfully!</p>
+                <p class="pending-msg">Pending community verification.</p>
+              </div>
+            </form>
           </div>
-          <div class="var-body">
-            <div class="var-row" role="row">
-              <div class="col variety-col" role="cell">
-                <span class="var-icon" aria-hidden="true">🍎</span> Delicious
-                Kashmiri
-              </div>
-              <div class="col trend-col" role="cell">
-                <div class="var-stats">
-                  <span class="count up">22</span>
-                  <div class="variety-bar" data-up="22" data-down="9">
-                    <span class="seg up"></span>
-                    <span class="seg down"></span>
-                  </div>
-                  <span class="count down">9</span>
+          
+          <!-- Section 4: Trust & Activity -->
+          <div class="trust-card">
+            <div class="trust-icon">&#128154;</div>
+            <h3 class="trust-title">Community verified data</h3>
+            <p class="trust-desc">Your submission helps thousands of Kashmiri farmers get better, fairer prices.</p>
+            
+            <div class="activity-stats">
+              <div class="stat-item">
+                <div class="stat-avatar-group">
+                  <div class="stat-avatar">H</div>
+                  <div class="stat-avatar">R</div>
+                  <div class="stat-avatar">+</div>
+                </div>
+                <div class="stat-text">
+                  <span class="stat-num">120+</span>
+                  <span class="stat-label">prices submitted today</span>
                 </div>
               </div>
-              <div class="col change-col" role="cell">
-                <span class="pct up">Firm</span>
-              </div>
-            </div>
-            <div class="var-row" role="row">
-              <div class="col variety-col" role="cell">
-                <span class="var-icon" aria-hidden="true">🍎</span> Delicious
-                Kullu
-              </div>
-              <div class="col trend-col" role="cell">
-                <div class="var-stats">
-                  <span class="count up">18</span>
-                  <div class="variety-bar" data-up="18" data-down="11">
-                    <span class="seg up"></span>
-                    <span class="seg down"></span>
-                  </div>
-                  <span class="count down">11</span>
-                </div>
-              </div>
-              <div class="col change-col" role="cell">
-                <span class="pct up">Stable</span>
-              </div>
-            </div>
-            <div class="var-row" role="row">
-              <div class="col variety-col" role="cell">
-                <span class="var-icon" aria-hidden="true">🍎</span> Gala
-              </div>
-              <div class="col trend-col" role="cell">
-                <div class="var-stats">
-                  <span class="count up">14</span>
-                  <div class="variety-bar" data-up="14" data-down="6">
-                    <span class="seg up"></span>
-                    <span class="seg down"></span>
-                  </div>
-                  <span class="count down">6</span>
-                </div>
-              </div>
-              <div class="col change-col" role="cell">
-                <span class="pct up">Slight ↑</span>
-              </div>
-            </div>
-            <div class="var-row" role="row">
-              <div class="col variety-col" role="cell">
-                <span class="var-icon" aria-hidden="true">🍎</span> American
-              </div>
-              <div class="col trend-col" role="cell">
-                <div class="var-stats">
-                  <span class="count up">20</span>
-                  <div class="variety-bar" data-up="20" data-down="15">
-                    <span class="seg up"></span>
-                    <span class="seg down"></span>
-                  </div>
-                  <span class="count down">15</span>
-                </div>
-              </div>
-              <div class="col change-col" role="cell">
-                <span class="pct down">Pressure</span>
-              </div>
-            </div>
-            <div class="var-row" role="row">
-              <div class="col variety-col" role="cell">
-                <span class="var-icon" aria-hidden="true">🍏</span> Golden
-                Delicious
-              </div>
-              <div class="col trend-col" role="cell">
-                <div class="var-stats">
-                  <span class="count up">11</span>
-                  <div class="variety-bar" data-up="11" data-down="4">
-                    <span class="seg up"></span>
-                    <span class="seg down"></span>
-                  </div>
-                  <span class="count down">4</span>
-                </div>
-              </div>
-              <div class="col change-col" role="cell">
-                <span class="pct up">Firm</span>
+              <div class="stat-item">
+                <span class="stat-dot pulse"></span>
+                <span class="stat-label">Last submission: 5 mins ago</span>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       <section class="news-section" id="market-updates">
-        <div class="section-head">
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
           <h2>Market updates today</h2>
           <button
             type="button"
@@ -472,7 +843,7 @@
       </section>
 
       <section class="faq-section" id="faq">
-        <div class="section-head">
+        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
           <h2>Frequently Asked Questions</h2>
         </div>
         <div class="accordion" role="tablist">
