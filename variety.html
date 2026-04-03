@@ -14,225 +14,356 @@
     />
     <style>
       :root {
-        --up: #059669;
-        --down: #dc2626;
-        --ink: #222;
+        --v-up: #0f766e;
+        --v-down: #dc2626;
+        --v-ink: #0f172a;
+        --v-muted: #64748b;
+        --v-border: #e2e8f0;
+        --v-surface: #ffffff;
+        --v-page: #f8fafc;
       }
-      body {
-        background: #fff;
-        color: var(--ink);
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+      .variety-page {
+        background: var(--v-page);
+        color: var(--v-ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
           Arial, sans-serif;
       }
-      main {
-        max-width: 1040px;
+      .v-main {
+        position: relative;
+        padding: 96px 0 72px;
+        min-height: 100vh;
+      }
+      .v-page-bg {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at 15% 0%,
+            rgba(15, 118, 110, 0.12),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 90% 20%,
+            rgba(59, 130, 246, 0.08),
+            transparent 40%
+          );
+      }
+      .v-container {
+        position: relative;
+        max-width: 1120px;
         margin: 0 auto;
-        padding: 1.5rem 1.25rem 4rem;
+        padding: 0 20px;
       }
-      .breadcrumb {
-        font-size: 0.7rem;
-        letter-spacing: 0.5px;
-        margin: 0 0 0.6rem;
-        opacity: 0.6;
-      }
-      .breadcrumb a {
-        text-decoration: none;
-        color: #b5482c;
-      }
-      .hero {
+      .v-topbar {
         display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        margin-bottom: 0.65rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 22px;
       }
-      .hero h1 {
-        font-size: 1.05rem;
-        font-weight: 600;
-        letter-spacing: 0.4px;
-        margin: 0;
-        opacity: 0.75;
-      }
-      .back-inline {
+      .back-pill {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        font-size: 0.7rem;
+        gap: 6px;
+        border: 1px solid var(--v-border);
+        background: var(--v-surface);
+        color: #334155;
+        font-size: 13px;
         font-weight: 600;
-        letter-spacing: 0.5px;
-        text-decoration: none;
-        background: #fff;
-        border: 1px solid #eee;
+        padding: 8px 14px;
         border-radius: 999px;
-        padding: 6px 10px 6px 8px;
-        color: #b5482c;
-        margin: 100px 0 6px; /* add 100px top margin as requested */
         cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: background 0.2s, border-color 0.2s, transform 0.15s;
       }
-      .back-inline:hover {
-        background: #fff7f4;
+      .back-pill:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
       }
-      .price-row {
-        display: flex;
-        align-items: baseline;
-        gap: 0.9rem;
-        flex-wrap: wrap;
+      .v-breadcrumb {
+        font-size: 13px;
+        color: var(--v-muted);
       }
-      .live-price {
-        font-size: 2.6rem;
+      .v-breadcrumb a {
+        color: #0f766e;
+        text-decoration: none;
         font-weight: 600;
-        line-height: 1;
       }
-      .live-change {
-        font-size: 0.95rem;
-        font-weight: 500;
+      .v-breadcrumb a:hover {
+        text-decoration: underline;
+      }
+      .bc-sep {
+        margin: 0 6px;
+        opacity: 0.45;
+      }
+      .v-hero-card {
+        background: var(--v-surface);
+        border: 1px solid var(--v-border);
+        border-radius: 20px;
+        padding: 24px 26px 22px;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 40px -18px rgba(15, 23, 42, 0.18);
+      }
+      .v-hero-top {
         display: flex;
-        align-items: center;
-        gap: 0.35rem;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .v-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #ccfbf1;
+        color: #0f766e;
+      }
+      .v-pill-muted {
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 600;
+      }
+      .v-title {
+        margin: 0 0 14px;
+        font-size: clamp(1.45rem, 3vw, 1.85rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--v-ink);
+      }
+      .v-hero-price-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 14px 18px;
+      }
+      .v-price-big {
+        font-size: clamp(2.35rem, 5vw, 2.85rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--v-ink);
+      }
+      .v-change-pill.live-change {
+        font-size: 14px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid var(--v-border);
       }
       .live-change.up {
-        color: var(--up);
+        color: var(--v-up);
+        background: #ecfdf5;
+        border-color: #a7f3d0;
       }
       .live-change.down {
-        color: var(--down);
+        color: var(--v-down);
+        background: #fef2f2;
+        border-color: #fecaca;
       }
-      .tag {
-        background: #ffe6dc;
-        color: #b5482c;
-        padding: 0.35rem 0.7rem;
-        border-radius: 1rem;
-        font-size: 0.6rem;
-        letter-spacing: 0.5px;
-        font-weight: 600;
+      .v-meta {
+        margin: 14px 0 0;
+        font-size: 13px;
+        color: var(--v-muted);
       }
-      #chartWrap {
-        position: relative;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        background: #fff;
-        padding: 0.75rem 0.75rem 1rem;
-        min-height: 320px;
+      .chart-panel {
+        background: var(--v-surface);
+        border: 1px solid var(--v-border);
+        border-radius: 20px;
+        padding: 0;
+        margin-bottom: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 40px -22px rgba(15, 23, 42, 0.2);
       }
-      #chartWrap canvas {
-        width: 100%;
+      .chart-panel-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 22px 12px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .chart-panel-title {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .chart-panel-sub {
+        margin: 0;
+        font-size: 13px;
+        color: var(--v-muted);
       }
       .range-tabs {
-        position: absolute;
-        top: 10px;
-        left: 12px;
-        display: flex;
+        display: inline-flex;
         gap: 6px;
-        z-index: 6;
+        padding: 4px;
+        background: #f1f5f9;
+        border-radius: 12px;
       }
       .range-tabs button {
-        background: #fff;
-        border: 1px solid #e5e5e5;
-        font-size: 0.55rem;
-        letter-spacing: 0.5px;
-        padding: 4px 10px 5px;
-        border-radius: 20px;
+        border: none;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 8px 14px;
+        border-radius: 10px;
         cursor: pointer;
-        font-weight: 600;
-        color: #555;
+        color: #64748b;
+        transition: background 0.2s, color 0.2s;
       }
       .range-tabs button.active {
-        background: #b5482c;
-        color: #fff;
-        border-color: #b5482c;
+        background: #fff;
+        color: #0f766e;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
       }
       .range-tabs button:disabled {
-        opacity: 0.4;
+        opacity: 0.35;
         cursor: not-allowed;
+      }
+      .chart-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px 22px;
+        background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        border-bottom: 1px solid #f1f5f9;
+      }
+      @media (max-width: 720px) {
+        .chart-stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .chart-stat {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        background: #fff;
+      }
+      .cs-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 4px;
+      }
+      .cs-val {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+      }
+      .chart-canvas-wrap {
+        position: relative;
+        padding: 8px 12px 16px;
+      }
+      #chartInner {
+        min-height: 340px;
+      }
+      .chart-canvas-inner {
+        position: relative;
+        height: 320px;
+      }
+      #chartInner canvas {
+        width: 100% !important;
       }
       .chart-overlay {
         position: absolute;
-        top: 10px;
-        right: 12px;
+        top: 14px;
+        right: 18px;
+        z-index: 5;
         display: flex;
         flex-direction: column;
         gap: 2px;
-        font-size: 0.7rem;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(4px);
-        padding: 6px 10px 7px;
-        border: 1px solid #e8e8e8;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        font-size: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 8px 12px 10px;
+        border: 1px solid var(--v-border);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.2);
       }
       .chart-overlay .ov-price {
-        font-weight: 600;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: -0.02em;
       }
       .chart-overlay .ov-change {
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 12px;
       }
       .chart-overlay .ov-change.up {
-        color: var(--up);
+        color: var(--v-up);
       }
       .chart-overlay .ov-change.down {
-        color: var(--down);
+        color: var(--v-down);
       }
       .empty {
         text-align: center;
         padding: 3rem 1rem;
-        color: #777;
-        font-size: 0.9rem;
+        color: #64748b;
+        font-size: 14px;
       }
       .loading-spinner {
-        width: 30px;
-        height: 30px;
-        border: 3px solid #eee;
-        border-top-color: #b5482c;
+        width: 36px;
+        height: 36px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #0f766e;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 2.2rem auto;
+        animation: vspin 0.9s linear infinite;
+        margin: 2.5rem auto;
       }
-      @keyframes spin {
+      @keyframes vspin {
         to {
           transform: rotate(360deg);
         }
       }
-      .stamp {
-        margin-top: 0.4rem;
-        font-size: 0.65rem;
-        letter-spacing: 0.5px;
-        opacity: 0.55;
-      }
-      .share-inline {
+      .share-row {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 0.55rem;
-        margin-top: 0.65rem;
+        gap: 10px;
+        margin: 8px 0 28px;
         flex-wrap: wrap;
       }
-      .share-inline .share-label {
-        font-size: 0.55rem;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-        opacity: 0.55;
+      .share-row .share-label {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: #94a3b8;
         text-transform: uppercase;
-        margin-right: 0.25rem;
+        margin-right: 4px;
       }
       .share-icon {
-        width: 30px;
-        height: 30px;
-        border: 1px solid #e5e5e5;
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--v-border);
         background: #fff;
-        border-radius: 8px;
+        border-radius: 12px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: #555;
+        color: #475569;
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 16px;
         cursor: pointer;
-        transition: background 0.18s, border-color 0.18s, color 0.18s;
+        transition: background 0.18s, border-color 0.18s, color 0.18s,
+          transform 0.15s;
       }
       .share-icon:hover {
-        background: #fff3ef;
-        border-color: #e0c1b8;
-        color: #b5482c;
+        transform: translateY(-1px);
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #0f766e;
       }
       .share-icon.wa {
         background: #25d366;
@@ -241,6 +372,7 @@
       }
       .share-icon.wa:hover {
         background: #1fb659;
+        color: #fff;
       }
       .share-icon.tg {
         background: #229ed9;
@@ -249,68 +381,127 @@
       }
       .share-icon.tg:hover {
         background: #178bbf;
-      }
-      .share-icon.copy.copied {
-        background: #059669;
-        border-color: #059669;
         color: #fff;
       }
-      .overview {
-        margin-top: 2.2rem;
-        border: 1px solid #eee;
-        background: #fff;
-        padding: 1.1rem 1.1rem 1.25rem;
-        border-radius: 14px;
+      .share-icon.copy.copied {
+        background: #0f766e;
+        border-color: #0f766e;
+        color: #fff;
       }
-      .overview h2 {
-        margin: 0 0 0.85rem;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        opacity: 0.75;
+      .sibling-section {
+        margin-bottom: 28px;
       }
-      .ov-row {
+      .v-section-title {
+        margin: 0 0 6px;
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .v-section-lead {
+        margin: 0 0 16px;
+        font-size: 14px;
+        color: var(--v-muted);
+      }
+      .variety-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .v-sibling-card {
         display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        row-gap: 0.75rem;
-        margin: 0 0 1.05rem;
+        flex-direction: column;
+        gap: 6px;
+        padding: 16px 16px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--v-border);
+        background: #fff;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: 0 4px 14px -8px rgba(15, 23, 42, 0.12);
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
       }
-      .ov-item {
-        min-width: 160px;
+      .v-sibling-card:hover {
+        transform: translateY(-3px);
+        border-color: #99f6e4;
+        box-shadow: 0 16px 36px -20px rgba(15, 118, 110, 0.35);
+      }
+      .vsc-name {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .vsc-price {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .vsc-hint {
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f766e;
+      }
+      .overview {
+        background: var(--v-surface);
+        border: 1px solid var(--v-border);
+        border-radius: 20px;
+        padding: 22px 22px 20px;
+        box-shadow: 0 8px 30px -18px rgba(15, 23, 42, 0.15);
+      }
+      .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .ov-card {
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid #f1f5f9;
+        background: #fafbfc;
       }
       .ov-label {
-        font-size: 0.55rem;
-        letter-spacing: 0.5px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        opacity: 0.55;
-        font-weight: 600;
+        font-weight: 700;
+        color: #94a3b8;
         display: block;
-        margin-bottom: 0.28rem;
+        margin-bottom: 6px;
       }
       .ov-value {
-        font-size: 1.05rem;
-        font-weight: 600;
-        letter-spacing: 0.4px;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
+      .ov-desc-block {
+        padding-top: 4px;
       }
       .ov-desc-label {
-        font-size: 0.6rem;
-        letter-spacing: 0.5px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        opacity: 0.55;
-        font-weight: 600;
-        margin: 0 0 0.4rem;
+        font-weight: 700;
+        color: #94a3b8;
+        margin: 0 0 8px;
       }
       .ov-desc {
-        font-size: 0.72rem;
-        line-height: 1.45;
-        max-width: 760px;
-        color: #333;
+        font-size: 14px;
+        line-height: 1.65;
+        color: #475569;
+        margin: 0;
       }
       @media (max-width: 640px) {
-        .live-price {
-          font-size: 2.15rem;
+        .v-main {
+          padding-top: 88px;
+        }
+        .chart-panel-head {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .range-tabs {
+          width: 100%;
+          justify-content: space-between;
         }
       }
     </style>
@@ -343,12 +534,85 @@
         azadpur: "Azadpur (Delhi)",
         mumbai: "Mumbai",
       };
+      let __priceChartInstance = null;
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function updateShareLinks() {
+        const clean = location.href.split("#")[0];
+        const url = encodeURIComponent(clean);
+        const text = encodeURIComponent(
+          document.getElementById("varietyTitle")?.textContent?.trim() ||
+            "Variety price"
+        );
+        const wa = document.getElementById("shareWA");
+        const tg = document.getElementById("shareTG");
+        if (wa) wa.href = `https://wa.me/?text=${text}%20${url}`;
+        if (tg) tg.href = `https://t.me/share/url?url=${url}&text=${text}`;
+      }
+      function updateRangeStats(values) {
+        const lowEl = document.getElementById("statLow");
+        const highEl = document.getElementById("statHigh");
+        const avgEl = document.getElementById("statAvg");
+        const spanEl = document.getElementById("statSpan");
+        if (!values || !values.length) {
+          [lowEl, highEl, avgEl, spanEl].forEach((el) => {
+            if (el) el.textContent = "—";
+          });
+          return;
+        }
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        const fmt = new Intl.NumberFormat("en-IN");
+        if (lowEl) lowEl.textContent = "₹" + fmt.format(Math.round(min));
+        if (highEl) highEl.textContent = "₹" + fmt.format(Math.round(max));
+        if (avgEl) avgEl.textContent = "₹" + fmt.format(Math.round(avg));
+        if (spanEl) spanEl.textContent = "₹" + fmt.format(Math.round(max - min));
+      }
+      function populateSiblingVarieties(rows, currentVarietyKey) {
+        const grid = document.getElementById("siblingGrid");
+        const section = document.getElementById("siblingSection");
+        if (!grid || !section) return;
+        const list = Array.isArray(rows) ? rows : [];
+        const cur = (currentVarietyKey || "").toLowerCase().trim();
+        const others = list.filter(
+          (r) =>
+            r &&
+            r.variety &&
+            r.variety.toLowerCase().trim() !== cur
+        );
+        if (!others.length) {
+          section.hidden = true;
+          grid.innerHTML = "";
+          return;
+        }
+        section.hidden = false;
+        const fmt = new Intl.NumberFormat("en-IN");
+        grid.innerHTML = others
+          .map((r) => {
+            const name = escapeHtml(r.variety);
+            const price =
+              r.pricePerBox != null ? `₹${fmt.format(r.pricePerBox)}` : "—";
+            const href = `variety.html?mandi=${encodeURIComponent(
+              mandi
+            )}&variety=${encodeURIComponent(r.variety)}`;
+            return `<a class="v-sibling-card" href="${href}"><span class="vsc-name">${name}</span><span class="vsc-price">${price}</span><span class="vsc-hint">View chart &rarr;</span></a>`;
+          })
+          .join("");
+      }
       function setVarietyTitle(name) {
         const t = name || "Variety";
         const titleEl = document.getElementById("varietyTitle");
         if (titleEl) titleEl.textContent = t;
         const crumb = document.getElementById("crumbVariety");
         if (crumb) crumb.textContent = t;
+        const m = FRIENDLY_MANDI[mandi] || mandi || "Mandi";
+        document.title = `${t} · ${m} · Kashmir Apple Prices`;
       }
       document.addEventListener("DOMContentLoaded", () => {
         setVarietyTitle(variety || "Variety");
@@ -358,8 +622,10 @@
           FRIENDLY_MANDI[mandi] || ""
         ).toUpperCase();
         if (!mandi || !variety) {
-          document.getElementById("chartWrap").innerHTML =
-            '<div class="empty">Missing parameters.</div>';
+          const inner = document.getElementById("chartInner");
+          if (inner)
+            inner.innerHTML =
+              '<div class="empty">Missing mandi or variety in the URL.</div>';
           return;
         }
         loadData();
@@ -429,12 +695,16 @@
           const guidelinePlugin = {
             id: "hoverGuide",
             afterDraw(chart) {
-              if (!chart._active || !chart._active.length) return;
-              const x = chart._active[0].element.x;
+              const active =
+                typeof chart.getActiveElements === "function"
+                  ? chart.getActiveElements()
+                  : chart._active;
+              if (!active || !active.length) return;
+              const x = active[0].element.x;
               const { top, bottom } = chart.chartArea;
               const ctx = chart.ctx;
               ctx.save();
-              ctx.strokeStyle = "rgba(0,0,0,.18)";
+              ctx.strokeStyle = "rgba(15, 23, 42, 0.12)";
               ctx.beginPath();
               ctx.moveTo(x, top);
               ctx.lineTo(x, bottom);
@@ -470,7 +740,7 @@
             },
           };
           function setOverlay(cur, prev) {
-            const wrapSec = document.getElementById("chartWrap");
+            const wrapSec = document.querySelector(".chart-canvas-wrap");
             if (!wrapSec) return;
             document.getElementById("chartOverlay")?.remove();
             if (cur == null) return;
@@ -540,23 +810,30 @@
             const series = sliceForRange(state.fullSeries);
             const chartDiv = document.getElementById("chartInner");
             chartDiv.innerHTML =
-              '<canvas id="priceChart" height="300"></canvas>';
-            const ctx = document.getElementById("priceChart").getContext("2d");
+              '<div class="chart-canvas-inner"><canvas id="priceChart"></canvas></div>';
+            const canvas = document.getElementById("priceChart");
+            const ctx = canvas.getContext("2d");
+            if (__priceChartInstance) {
+              __priceChartInstance.destroy();
+              __priceChartInstance = null;
+            }
             const labelDates = series.map((s) => s.date);
             const labels = labelDates.map(formatDate);
             const values = series.map((s) => s.value);
+            updateRangeStats(values);
             const last = values[values.length - 1];
             const prev = values.length > 1 ? values[values.length - 2] : last;
             const up = last - prev >= 0;
-            const lineColor = up ? "#059669" : "#dc2626";
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            const lineColor = up ? "#0f766e" : "#dc2626";
+            const h = 320;
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
             gradient.addColorStop(
               0,
-              up ? "rgba(5,150,105,.35)" : "rgba(220,38,38,.35)"
+              up ? "rgba(15,118,110,.22)" : "rgba(220,38,38,.22)"
             );
             gradient.addColorStop(
               1,
-              up ? "rgba(5,150,105,0)" : "rgba(220,38,38,0)"
+              up ? "rgba(15,118,110,0)" : "rgba(220,38,38,0)"
             );
             const midValue = (Math.min(...values) + Math.max(...values)) / 2;
             const midlinePlugin = {
@@ -570,7 +847,7 @@
                 const yPx = y.getPixelForValue(midValue);
                 ctx.save();
                 ctx.setLineDash([4, 4]);
-                ctx.strokeStyle = "rgba(0,0,0,.08)";
+                ctx.strokeStyle = "rgba(148,163,184,0.35)";
                 ctx.beginPath();
                 ctx.moveTo(left, yPx);
                 ctx.lineTo(right, yPx);
@@ -578,7 +855,13 @@
                 ctx.restore();
               },
             };
-            new Chart(ctx, {
+            const maxXTicks =
+              selectedRange === "Full"
+                ? 10
+                : selectedRange === "1W"
+                  ? 7
+                  : 4;
+            __priceChartInstance = new Chart(ctx, {
               type: "line",
               data: {
                 labels,
@@ -586,28 +869,84 @@
                   {
                     data: values,
                     borderColor: lineColor,
-                    borderWidth: 2.2,
+                    borderWidth: 2.5,
                     spanGaps: true,
                     pointRadius: (c) =>
                       c.dataIndex === values.length - 1 ? 5 : 0,
-                    pointHoverRadius: 6,
+                    pointHoverRadius: 7,
                     pointBackgroundColor: lineColor,
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
                     fill: { target: "origin", above: gradient },
-                    tension: 0.28,
+                    tension: 0.32,
                   },
                 ],
               },
               options: {
+                responsive: true,
                 maintainAspectRatio: false,
                 interaction: { intersect: false, mode: "index" },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
                     displayColors: false,
-                    callbacks: { label: (c) => "₹" + c.parsed.y },
+                    backgroundColor: "rgba(15, 23, 42, 0.92)",
+                    titleColor: "#f8fafc",
+                    bodyColor: "#e2e8f0",
+                    padding: 12,
+                    cornerRadius: 10,
+                    callbacks: {
+                      title: (items) => {
+                        const i = items[0]?.dataIndex;
+                        if (i == null || !labelDates[i]) return "";
+                        const d = labelDates[i];
+                        return d.toLocaleDateString("en-IN", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short",
+                        });
+                      },
+                      label: (c) =>
+                        "₹" +
+                        globalFmt.format(
+                          typeof c.parsed.y === "number"
+                            ? c.parsed.y
+                            : c.parsed
+                        ),
+                    },
                   },
                 },
-                scales: { x: { display: false }, y: { display: false } },
+                scales: {
+                  x: {
+                    display: true,
+                    grid: {
+                      color: "rgba(148, 163, 184, 0.18)",
+                      drawTicks: false,
+                    },
+                    ticks: {
+                      maxRotation: 0,
+                      autoSkip: true,
+                      maxTicksLimit: maxXTicks,
+                      color: "#64748b",
+                      font: { size: 11, weight: "600" },
+                    },
+                    border: { display: false },
+                  },
+                  y: {
+                    display: true,
+                    grid: {
+                      color: "rgba(148, 163, 184, 0.18)",
+                      drawTicks: false,
+                    },
+                    ticks: {
+                      color: "#64748b",
+                      maxTicksLimit: 5,
+                      font: { size: 11, weight: "600" },
+                      callback: (v) => "₹" + globalFmt.format(v),
+                    },
+                    border: { display: false },
+                  },
+                },
                 weekInfo: {
                   labelDates,
                   startDateMs: labelDates[0]?.getTime() || Date.now(),
@@ -675,7 +1014,15 @@
             ];
             selectedRange = "1D";
             renderChart();
-            if (typeof updateShareLinks === "function") updateShareLinks();
+            try {
+              const cached = sessionStorage.getItem("mandiRows:" + mandi);
+              if (cached)
+                populateSiblingVarieties(
+                  JSON.parse(cached) || [],
+                  direct.variety
+                );
+            } catch (e) {}
+            updateShareLinks();
             return;
           }
           // --- Fetch (cache first) ---
@@ -793,7 +1140,8 @@
             new Date().toLocaleString() +
             (usedCache ? " • Cached" : usedMock ? " • Mock" : "");
           renderChart();
-          if (typeof updateShareLinks === "function") updateShareLinks();
+          populateSiblingVarieties(rows, rowFuzzy.variety);
+          updateShareLinks();
         } catch (e) {
           const detail = (e && e.message) || String(e);
           const triedList =
@@ -816,7 +1164,7 @@
       }
     </script>
   </head>
-  <body>
+  <body class="variety-page">
     <header class="site-header">
       <div class="nav-bar" role="navigation" aria-label="Primary">
         <button
@@ -833,10 +1181,7 @@
           </span>
           <span class="brand-text">Kashmir Apple Prices</span>
         </a>
-        <ul class="menu" id="primary-menu">
-          <li><a class="nav-link" href="index.html">Home</a></li>
-          <li><a class="nav-link" href="submit.html">Submit Your Prices</a></li>
-        </ul>
+        <ul class="menu" id="primary-menu"></ul>
         <div class="nav-actions">
           <a
             class="ghost-btn"
@@ -863,93 +1208,141 @@
             </span>
             <span>Find Cold Storage</span>
           </a>
-          <a
-            class="outline-btn external"
-            href="https://fois.indianrail.gov.in/RailSAHAY/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Freight Train
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              aria-hidden="true"
-              class="ext"
-            >
-              <path
-                fill="currentColor"
-                d="M5 5h6v2H7v10h10v-4h2v6H5V5zm8-2h8v8h-2V6.414l-9.293 9.293-1.414-1.414L17.586 5H13V3z"
-              />
-            </svg>
-          </a>
+          <a class="outline-btn" href="index.html#smart-toolbar">Compare Markets</a>
         </div>
       </div>
     </header>
-    <main>
-      <a class="back-inline" onclick="history.back()" aria-label="Go back"
-        >← Back</a
-      >
-      <div class="breadcrumb">
-        <a href="index.html">Home</a> / <span id="mandiName"></span> /
-        <span id="crumbVariety">Variety</span>
+    <main class="v-main">
+      <div class="v-page-bg" aria-hidden="true"></div>
+      <div class="v-container">
+        <div class="v-topbar">
+          <button type="button" class="back-pill" onclick="history.back()">
+            <span aria-hidden="true">&larr;</span> Back
+          </button>
+          <nav class="v-breadcrumb" aria-label="Breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="bc-sep">/</span>
+            <span id="mandiName"></span>
+            <span class="bc-sep">/</span>
+            <span id="crumbVariety">Variety</span>
+          </nav>
+        </div>
+
+        <section class="v-hero-card" aria-labelledby="varietyTitle">
+          <div class="v-hero-top">
+            <span class="v-pill" id="mandiTag"></span>
+            <span class="v-pill v-pill-muted">Per box (wholesale)</span>
+          </div>
+          <h1 id="varietyTitle" class="v-title">Variety</h1>
+          <div class="v-hero-price-row">
+            <div class="v-price-big" id="varietyPrice">₹—</div>
+            <div class="v-change-pill live-change" id="varietyChange">—</div>
+          </div>
+          <p class="v-meta">
+            Updated <span id="dataStamp">—</span>
+          </p>
+        </section>
+
+        <section class="chart-panel" id="chartWrap">
+          <div class="chart-panel-head">
+            <div>
+              <h2 class="chart-panel-title">Price trend</h2>
+              <p class="chart-panel-sub">
+                Hover points for exact levels; weekly grid marks help read
+                seasonality
+              </p>
+            </div>
+            <div
+              class="range-tabs"
+              id="rangeTabs"
+              role="tablist"
+              aria-label="Chart range"
+            >
+              <button type="button" data-range="1D" class="active" role="tab">
+                1D
+              </button>
+              <button type="button" data-range="1W" role="tab">1W</button>
+              <button type="button" data-range="Full" role="tab">Full</button>
+            </div>
+          </div>
+          <div class="chart-stats" id="chartStats" aria-live="polite">
+            <div class="chart-stat">
+              <span class="cs-label">Period low</span>
+              <span class="cs-val" id="statLow">—</span>
+            </div>
+            <div class="chart-stat">
+              <span class="cs-label">Period high</span>
+              <span class="cs-val" id="statHigh">—</span>
+            </div>
+            <div class="chart-stat">
+              <span class="cs-label">Average</span>
+              <span class="cs-val" id="statAvg">—</span>
+            </div>
+            <div class="chart-stat">
+              <span class="cs-label">Range</span>
+              <span class="cs-val" id="statSpan">—</span>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <div id="chartInner"></div>
+          </div>
+        </section>
+
+        <div class="share-row" id="shareBar">
+          <span class="share-label">Share</span>
+          <button
+            type="button"
+            class="share-icon copy"
+            id="shareCopy"
+            aria-label="Copy link"
+          >
+            <i class="fa-solid fa-link"></i>
+          </button>
+          <a
+            class="share-icon wa"
+            id="shareWA"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            aria-label="Share on WhatsApp"
+            ><i class="fa-brands fa-whatsapp"></i
+          ></a>
+          <a
+            class="share-icon tg"
+            id="shareTG"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            aria-label="Share on Telegram"
+            ><i class="fa-brands fa-telegram"></i
+          ></a>
+        </div>
+
+        <section class="sibling-section" id="siblingSection" hidden>
+          <h2 class="v-section-title">Other varieties in this mandi</h2>
+          <p class="v-section-lead">Open another variety to compare pricing</p>
+          <div class="variety-card-grid" id="siblingGrid"></div>
+        </section>
+
+        <section class="overview" id="overviewSection">
+          <h2 class="v-section-title">Variety overview</h2>
+          <div class="overview-grid">
+            <div class="ov-card">
+              <span class="ov-label">Current price</span>
+              <div id="ovCurrentPrice" class="ov-value">₹—</div>
+            </div>
+            <div class="ov-card">
+              <span class="ov-label">Avg box weight</span>
+              <div id="ovAvgWeight" class="ov-value">— KGs</div>
+            </div>
+          </div>
+          <div class="ov-desc-block">
+            <div class="ov-desc-label">Notes</div>
+            <p id="ovDesc" class="ov-desc">Loading…</p>
+          </div>
+        </section>
       </div>
-      <div class="hero">
-        <h1 id="varietyTitle">Variety</h1>
-        <div class="price-row">
-          <div class="live-price" id="varietyPrice">₹—</div>
-          <div class="live-change" id="varietyChange">—</div>
-          <span class="tag" id="mandiTag"></span>
-        </div>
-        <div class="stamp">Updated <span id="dataStamp">—</span></div>
-      </div>
-      <section id="chartWrap">
-        <div class="range-tabs" id="rangeTabs">
-          <button data-range="1D" class="active">1D</button>
-          <button data-range="1W">1W</button>
-          <button data-range="Full">Full</button>
-        </div>
-        <div id="chartInner"></div>
-      </section>
-      <div class="share-inline" id="shareBar">
-        <span class="share-label">Share</span>
-        <button
-          type="button"
-          class="share-icon copy"
-          id="shareCopy"
-          aria-label="Copy link"
-        >
-          <i class="fa-solid fa-link"></i>
-        </button>
-        <a
-          class="share-icon wa"
-          id="shareWA"
-          target="_blank"
-          rel="noopener"
-          aria-label="Share on WhatsApp"
-          ><i class="fa-brands fa-whatsapp"></i
-        ></a>
-        <a
-          class="share-icon tg"
-          id="shareTG"
-          target="_blank"
-          rel="noopener"
-          aria-label="Share on Telegram"
-          ><i class="fa-brands fa-telegram"></i
-        ></a>
-      </div>
-      <section class="overview" id="overviewSection">
-        <h2>Overview</h2>
-        <div class="ov-row">
-          <div class="ov-label">Current Price</div>
-          <div id="ovCurrentPrice" class="ov-value">₹—</div>
-        </div>
-        <div class="ov-row">
-          <div class="ov-label">Avg Weight</div>
-          <div id="ovAvgWeight" class="ov-value">— KGs</div>
-        </div>
-        <div class="ov-desc-label">Description</div>
-        <div id="ovDesc" class="ov-desc">Loading…</div>
-      </section>
+    </main>
   <script>
   document.addEventListener("DOMContentLoaded", () => {
         // attempt to update if data already loaded quickly

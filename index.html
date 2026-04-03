@@ -24,10 +24,7 @@
           </span>
           <span class="brand-text">Kashmir Apple Prices</span>
         </a>
-        <ul class="menu" id="primary-menu">
-          <li><a class="nav-link active" href="index.html">Home</a></li>
-          <li><a class="nav-link" href="submit.html">Submit Your Prices</a></li>
-        </ul>
+        <ul class="menu" id="primary-menu"></ul>
         <div class="nav-actions">
           <a
             class="ghost-btn"
@@ -54,25 +51,9 @@
             </span>
             <span>Find Cold Storage</span>
           </a>
-          <a
-            class="outline-btn external"
-            href="https://fois.indianrail.gov.in/RailSAHAY/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Freight Train
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              aria-hidden="true"
-              class="ext"
-            >
-              <path
-                fill="currentColor"
-                d="M5 5h6v2H7v10h10v-4h2v6H5V5zm8-2h8v8h-2V6.414l-9.293 9.293-1.414-1.414L17.586 5H13V3z"
-              />
-            </svg>
-          </a>
+          <button class="outline-btn" id="header-compare-btn" type="button">
+            Compare Markets
+          </button>
         </div>
       </div>
     </header>
@@ -90,7 +71,7 @@
           <div class="hero-stats">Tracking 5+ mandis &bull; 10,000+ boxes daily</div>
           <div class="hero-actions">
             <a href="#shopian-mandi" class="btn-primary">View Today's Prices</a>
-            <a href="submit.html" class="btn-secondary">Submit Price</a>
+            <a href="#submit-price" class="btn-secondary">Submit Price</a>
           </div>
         </div>
         <div class="hero-visual">
@@ -233,8 +214,8 @@
     <main class="page">
       <!-- Shopian Mandi Section -->
       <section class="stock-section" id="shopian-mandi">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
-          <h2>Overview - Shopian Mandi</h2>
+        <div class="section-head"><p class="section-sub">Live Local Market</p>
+          <h2>Shopian Mandi Wholesale Rates</h2>
         </div>
         <div class="stock-grid">
           <article class="stock-card up" ">
@@ -322,8 +303,8 @@
 
       <!-- Sopore Mandi Section  -->
       <section class="stock-section" id="sopore-mandi">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
-          <h2>Overview - Sopore Mandi</h2>
+        <div class="section-head"><p class="section-sub">Live Local Market</p>
+          <h2>Sopore Mandi Wholesale Rates</h2>
         </div>
         <div class="stock-grid">
           <article class="stock-card up" ">
@@ -411,8 +392,8 @@
 
       <!-- Delhi Mandi Section -->
       <section class="stock-section" id="delhi-mandi">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
-          <h2>Overview - Delhi Mandi (Azadpur)</h2>
+        <div class="section-head"><p class="section-sub">Terminal Market Benchmark</p>
+          <h2>Azadpur (Delhi) Market Rates</h2>
         </div>
         <div class="stock-grid">
           <article class="stock-card up" ">
@@ -500,8 +481,8 @@
 
       <!-- Mumbai Mandi Section -->
       <section class="stock-section" id="mumbai-mandi">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
-          <h2>Overview - Mumbai Mandi (Vashi)</h2>
+        <div class="section-head"><p class="section-sub">Terminal Market Benchmark</p>
+          <h2>Vashi (Mumbai) Market Rates</h2>
         </div>
         <div class="stock-grid">
           <article class="stock-card up" ">
@@ -757,8 +738,8 @@
 
 
       <section class="news-section" id="market-updates">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
-          <h2>Market updates today</h2>
+        <div class="section-head"><p class="section-sub">Live News Feed</p>
+          <h2>Latest Market Updates</h2>
           <button
             type="button"
             class="ghost-btn refresh-news"
@@ -843,9 +824,13 @@
       </section>
 
       <section class="faq-section" id="faq">
-        <div class="section-head"><p class="section-sub">Today's Mandi Prices</p>
+        <div class="section-head"><p class="section-sub">Help & Clarity</p>
           <h2>Frequently Asked Questions</h2>
         </div>
+        <p class="faq-lead">
+          Quick answers about pricing logic, update reliability, and how
+          community submissions are used.
+        </p>
         <div class="accordion" role="tablist">
           <div class="accordion-item">
             <button
@@ -854,7 +839,8 @@
               aria-controls="faq-panel-1"
               id="faq-tab-1"
             >
-              How often are prices updated?
+              <span class="faq-q-icon" aria-hidden="true">?</span>
+              <span class="faq-q-text">How often are prices updated?</span>
             </button>
             <div
               class="accordion-panel"
@@ -873,7 +859,8 @@
               aria-controls="faq-panel-2"
               id="faq-tab-2"
             >
-              Why do some varieties show synthetic history?
+              <span class="faq-q-icon" aria-hidden="true">?</span>
+              <span class="faq-q-text">Why do some varieties show synthetic history?</span>
             </button>
             <div
               class="accordion-panel"
@@ -893,7 +880,8 @@
               aria-controls="faq-panel-3"
               id="faq-tab-3"
             >
-              How is price per box normalized?
+              <span class="faq-q-icon" aria-hidden="true">?</span>
+              <span class="faq-q-text">How is price per box normalized?</span>
             </button>
             <div
               class="accordion-panel"
@@ -913,7 +901,8 @@
               aria-controls="faq-panel-4"
               id="faq-tab-4"
             >
-              What does Firm / Pressure mean?
+              <span class="faq-q-icon" aria-hidden="true">?</span>
+              <span class="faq-q-text">What does Firm / Pressure mean?</span>
             </button>
             <div
               class="accordion-panel"
@@ -933,7 +922,8 @@
               aria-controls="faq-panel-5"
               id="faq-tab-5"
             >
-              Can I submit my own mandi prices?
+              <span class="faq-q-icon" aria-hidden="true">?</span>
+              <span class="faq-q-text">Can I submit my own mandi prices?</span>
             </button>
             <div
               class="accordion-panel"
@@ -950,15 +940,37 @@
     </main>
     <footer class="site-footer">
       <div class="footer-inner">
-        <a href="index.html" class="footer-brand">
-          <span class="brand-icon"
-            ><img src="Assets/logo-main.png" alt="Logo"
-          /></span>
-          <span>Kashmir Apple Prices</span>
-        </a>
+        <div class="footer-col footer-brand-col">
+          <a href="index.html" class="footer-brand">
+            <span class="brand-icon"
+              ><img src="Assets/logo-main.png" alt="Kashmir Apple Prices Logo"
+            /></span>
+            <span class="footer-brand-text">Kashmir Apple Prices</span>
+          </a>
+          <p class="footer-tagline">
+            Daily mandi intelligence to help growers and traders make faster,
+            better pricing decisions.
+          </p>
+        </div>
+        <nav class="footer-col" aria-label="Footer quick links">
+          <h3 class="footer-title">Quick links</h3>
+          <a href="index.html" class="footer-link">Dashboard</a>
+          <a href="#submit-price" class="footer-link">Submit prices</a>
+          <a href="#market-updates" class="footer-link">Market updates</a>
+          <a href="#faq" class="footer-link">FAQ</a>
+        </nav>
+        <div class="footer-col">
+          <h3 class="footer-title">Market coverage</h3>
+          <p class="footer-text">Shopian</p>
+          <p class="footer-text">Sopore</p>
+          <p class="footer-text">Azadpur (Delhi)</p>
+          <p class="footer-text">Vashi (Mumbai)</p>
+        </div>
       </div>
       <div class="footer-bottom">
-        © <span id="year"></span> Kashmir Apple Prices · All rights reserved.
+        <span>© <span id="year"></span> Kashmir Apple Prices</span>
+        <span class="footer-dot">•</span>
+        <span>Community verified + scraper assisted data</span>
       </div>
     </footer>
 

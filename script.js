@@ -2,7 +2,14 @@ const mobileToggle = document.querySelector(".mobile-toggle");
 const menu = document.getElementById("primary-menu");
 const header = document.querySelector(".site-header");
 
+if (mobileToggle && menu && !menu.children.length) {
+  mobileToggle.style.display = "none";
+}
+
+let lastScrollY = window.scrollY;
+
 function setScrollShadow() {
+  if (!header) return;
   if (window.scrollY > 4) {
     header.classList.add("is-scrolled");
   } else {
@@ -10,10 +17,37 @@ function setScrollShadow() {
   }
 }
 
-window.addEventListener("scroll", setScrollShadow, { passive: true });
-setScrollShadow();
+function updateHeaderVisibility() {
+  if (!header) return;
+  const currentY = window.scrollY;
+  const delta = currentY - lastScrollY;
+  const menuOpen = menu?.classList.contains("open");
 
-if (mobileToggle) {
+  if (menuOpen || currentY < 20) {
+    header.classList.remove("header-hidden");
+    lastScrollY = currentY;
+    return;
+  }
+
+  if (delta > 6 && currentY > 110) {
+    header.classList.add("header-hidden");
+  } else if (delta < -6) {
+    header.classList.remove("header-hidden");
+  }
+
+  lastScrollY = currentY;
+}
+
+function onScrollHeader() {
+  setScrollShadow();
+  updateHeaderVisibility();
+}
+
+window.addEventListener("scroll", onScrollHeader, { passive: true });
+setScrollShadow();
+updateHeaderVisibility();
+
+if (mobileToggle && menu) {
   mobileToggle.addEventListener("click", () => {
     const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
     mobileToggle.setAttribute("aria-expanded", String(!expanded));
@@ -508,22 +542,94 @@ window.addEventListener("DOMContentLoaded", initFAQAccordion);
 // -------- Smart Filters & Comparison Overlay --------
 
 window.addEventListener("DOMContentLoaded", () => {
-  // Update price range text
+  // Smart filter controls
+  const mandiFilter = document.getElementById("filter-mandi");
+  const varietyFilter = document.getElementById("filter-variety");
   const priceInput = document.getElementById("filter-price");
   const priceVal = document.getElementById("price-val");
-  if (priceInput && priceVal) {
-    priceInput.addEventListener("input", (e) => {
-      priceVal.textContent = "₹" + Number(e.target.value).toLocaleString();
+  const resetBtn = document.getElementById("btn-reset");
+
+  const sectionToMandi = {};
+  MANDI_SECTIONS.forEach((m) => {
+    sectionToMandi[m.id] = m.api;
+  });
+
+  function parseCardPrice(card) {
+    const raw = card.querySelector(".price")?.textContent || "";
+    const num = Number(raw.replace(/[^0-9.]/g, ""));
+    return Number.isFinite(num) ? num : NaN;
+  }
+
+  function applySmartFilters() {
+    if (!mandiFilter || !varietyFilter || !priceInput) return;
+    const mandiWanted = mandiFilter.value;
+    const varietyWanted = varietyFilter.value.toLowerCase();
+    const minPrice = Number(priceInput.value) || 0;
+
+    document.querySelectorAll(".stock-section").forEach((section) => {
+      const sectionMandi = sectionToMandi[section.id] || "";
+      const cards = section.querySelectorAll(".stock-card");
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const name =
+          card.querySelector(".stock-name")?.textContent.trim().toLowerCase() ||
+          "";
+        const price = parseCardPrice(card);
+        const mandiOk = mandiWanted === "all" || mandiWanted === sectionMandi;
+        const varietyOk =
+          varietyWanted === "all" || name.includes(varietyWanted);
+        const priceOk = Number.isFinite(price) ? price >= minPrice : false;
+
+        const show = mandiOk && varietyOk && priceOk;
+        card.classList.toggle("is-filtered-out", !show);
+        if (show) visibleCount += 1;
+      });
+
+      section.classList.toggle("is-filtered-out", visibleCount === 0);
     });
   }
 
+  function updatePriceLabel() {
+    if (priceInput && priceVal) {
+      priceVal.textContent = "₹" + Number(priceInput.value).toLocaleString();
+    }
+  }
+
+  mandiFilter?.addEventListener("change", applySmartFilters);
+  varietyFilter?.addEventListener("change", applySmartFilters);
+  resetBtn?.addEventListener("click", () => {
+    if (mandiFilter) mandiFilter.value = "all";
+    if (varietyFilter) varietyFilter.value = "all";
+    if (priceInput) priceInput.value = "1000";
+    updatePriceLabel();
+    applySmartFilters();
+  });
+
+  // Update price range text + apply filters live
+  if (priceInput && priceVal) {
+    priceInput.addEventListener("input", () => {
+      updatePriceLabel();
+      applySmartFilters();
+    });
+  }
+  updatePriceLabel();
+  // Re-apply after dynamic mandi prices load
+  setTimeout(applySmartFilters, 250);
+  setTimeout(applySmartFilters, 900);
+
   // Modal logic
   const compareBtn = document.getElementById("btn-compare-toggle");
+  const headerCompareBtn = document.getElementById("header-compare-btn");
   const modal = document.getElementById("compare-modal");
   const closeBtn = document.getElementById("compare-close");
 
   if(compareBtn && modal && closeBtn) {
     compareBtn.addEventListener("click", () => {
+      modal.classList.add("show");
+      updateComparison();
+    });
+    headerCompareBtn?.addEventListener("click", () => {
       modal.classList.add("show");
       updateComparison();
     });
