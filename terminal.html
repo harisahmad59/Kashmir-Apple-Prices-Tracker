@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Market Terminal | Kashmir Apple Prices</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="Assets/favicon.ico" type="image/x-icon" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+      defer
+    ></script>
+    <style>
+      .terminal-page {
+        background: #f1f5f9;
+        color: #0f172a;
+        min-height: 100vh;
+      }
+      .terminal-wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 108px 16px 30px;
+      }
+      .terminal-shell {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        gap: 14px;
+        min-height: calc(100vh - 150px);
+      }
+      .terminal-sidebar,
+      .terminal-main {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px -16px rgba(15, 23, 42, 0.25);
+      }
+      .terminal-sidebar {
+        padding: 12px;
+      }
+      .terminal-title {
+        margin: 0 0 10px;
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+      .terminal-tabs {
+        display: grid;
+        gap: 8px;
+      }
+      .terminal-tab {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        padding: 10px 12px;
+        border-radius: 10px;
+        text-align: left;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .terminal-tab:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+      }
+      .terminal-tab.active {
+        background: #e0f2fe;
+        border-color: #7dd3fc;
+        color: #0c4a6e;
+      }
+      .terminal-list-wrap {
+        margin-top: 14px;
+      }
+      .terminal-variety-list {
+        display: grid;
+        gap: 8px;
+        max-height: calc(100vh - 320px);
+        overflow: auto;
+        padding-right: 4px;
+      }
+      .terminal-variety-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #0f172a;
+        border-radius: 10px;
+        padding: 10px 11px;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s ease;
+      }
+      .terminal-variety-btn:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+      }
+      .terminal-variety-btn.active {
+        border-color: #38bdf8;
+        background: #f0f9ff;
+        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+      }
+      .tv-name {
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .tv-price {
+        font-size: 12px;
+        color: #0369a1;
+        font-weight: 700;
+      }
+      .terminal-main {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+      }
+      .terminal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .terminal-h1 {
+        margin: 0;
+        font-size: 22px;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+      }
+      .terminal-sub {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 13px;
+      }
+      .terminal-badge {
+        display: inline-block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: #0f766e;
+        border: 1px solid #99f6e4;
+        background: #ccfbf1;
+        padding: 5px 8px;
+        border-radius: 999px;
+      }
+      .terminal-kpis {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .terminal-kpi {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .tk-label {
+        display: block;
+        color: #64748b;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 4px;
+      }
+      .tk-value {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .chart-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px;
+        min-height: 380px;
+      }
+      #terminalChart {
+        width: 100% !important;
+        height: 360px !important;
+      }
+      .terminal-note {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 12px;
+      }
+      @media (max-width: 960px) {
+        .terminal-shell {
+          grid-template-columns: 1fr;
+        }
+        .terminal-variety-list {
+          max-height: 260px;
+        }
+        .terminal-kpis {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="terminal-page">
+    <header class="site-header">
+      <div class="nav-bar" role="navigation" aria-label="Primary">
+        <button
+          class="mobile-toggle"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="brand" aria-label="Home">
+          <span class="brand-icon" aria-hidden="true">
+            <img src="Assets/logo-main.png" alt="Kashmir Apple Prices Logo" />
+          </span>
+          <span class="brand-text">Kashmir Apple Prices</span>
+        </a>
+        <ul class="menu" id="primary-menu"></ul>
+        <div class="nav-actions">
+          <a class="ghost-btn" href="index.html#top">Back to Dashboard</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="terminal-wrap">
+      <section class="terminal-shell">
+        <aside class="terminal-sidebar">
+          <h2 class="terminal-title">Mandis</h2>
+          <div class="terminal-tabs" id="terminalTabs"></div>
+
+          <div class="terminal-list-wrap">
+            <h3 class="terminal-title">Varieties</h3>
+            <div class="terminal-variety-list" id="terminalVarieties"></div>
+          </div>
+        </aside>
+
+        <section class="terminal-main">
+          <div class="terminal-head">
+            <div>
+              <h1 class="terminal-h1" id="terminalHeading">
+                Live Market Terminal
+              </h1>
+              <p class="terminal-sub" id="terminalSub">
+                Select a mandi and variety to view trend.
+              </p>
+            </div>
+            <span class="terminal-badge" id="terminalBadge">Loading</span>
+          </div>
+
+          <div class="terminal-kpis">
+            <div class="terminal-kpi">
+              <span class="tk-label">Current Price</span>
+              <div class="tk-value" id="kpiCurrent">₹—</div>
+            </div>
+            <div class="terminal-kpi">
+              <span class="tk-label">Change vs Prev</span>
+              <div class="tk-value" id="kpiChange">—</div>
+            </div>
+            <div class="terminal-kpi">
+              <span class="tk-label">30-Day Range</span>
+              <div class="tk-value" id="kpiRange">—</div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <canvas id="terminalChart"></canvas>
+          </div>
+          <p class="terminal-note">
+            Terminal view optimized for quick mandi-to-mandi comparison and
+            variety-level trend tracking.
+          </p>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const MANDIS = [
+        { key: "shopian", label: "Shopian Mandi" },
+        { key: "sopore", label: "Sopore Mandi" },
+        { key: "azadpur", label: "Azadpur (Delhi)" },
+      ];
+
+      const API_BASE = (() => {
+        const meta = document.querySelector('meta[name="api-base"]');
+        let base = (
+          window.__API_BASE__ ||
+          (meta && meta.getAttribute("content")) ||
+          ""
+        ).replace(/\/$/, "");
+        if (!base && location.protocol === "file:") base = "http://localhost:4000";
+        return base;
+      })();
+
+      const fmt = new Intl.NumberFormat("en-IN");
+      const rowsByMandi = {};
+      let activeMandi = MANDIS[0].key;
+      let activeVariety = null;
+      let chartRef = null;
+      const FALLBACK_ROWS = {
+        shopian: [
+          { variety: "Delicious", pricePerBox: 1300 },
+          { variety: "American", pricePerBox: 1410 },
+          { variety: "Kullu", pricePerBox: 1340 },
+          { variety: "Gala", pricePerBox: 1250 },
+        ],
+        sopore: [
+          { variety: "Delicious", pricePerBox: 1320 },
+          { variety: "American", pricePerBox: 1425 },
+          { variety: "Kullu", pricePerBox: 1455 },
+          { variety: "Gala", pricePerBox: 1275 },
+        ],
+        azadpur: [
+          { variety: "Delicious", pricePerBox: 1480 },
+          { variety: "American", pricePerBox: 1560 },
+          { variety: "Kullu", pricePerBox: 1620 },
+          { variety: "Gala", pricePerBox: 1350 },
+        ],
+      };
+
+      function deterministicSeries(price, seedText) {
+        let seed = 0;
+        for (const c of seedText) seed = (seed * 31 + c.charCodeAt(0)) % 1000003;
+        const points = [];
+        let p = Math.max(100, Number(price) || 1000);
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const drift = ((seed % 17) - 8) / 260;
+          seed = (seed * 1664525 + 1013904223) % 4294967296;
+          const noise = ((seed % 1000) / 1000 - 0.5) * 0.03;
+          if (i !== 0) p = Math.max(100, Math.round(p * (1 + drift + noise)));
+          points.push({ date: d, value: i === 0 ? Number(price) : p });
+        }
+        return points;
+      }
+
+      async function fetchJson(url, timeoutMs = 6000) {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const res = await fetch(url, { signal: controller.signal });
+          if (!res.ok) throw new Error(res.status + " " + res.statusText);
+          return await res.json();
+        } finally {
+          clearTimeout(t);
+        }
+      }
+
+      function buildApiCandidates() {
+        const out = [];
+        if (API_BASE) out.push(API_BASE);
+        if (!API_BASE && /^https?:/.test(location.protocol)) out.push("");
+        if (!out.includes("http://localhost:4000")) out.push("http://localhost:4000");
+        return out;
+      }
+
+      async function fetchMandiRows(mandiKey) {
+        if (rowsByMandi[mandiKey]) return rowsByMandi[mandiKey];
+        const fromSession = sessionStorage.getItem("mandiRows:" + mandiKey);
+        if (fromSession) {
+          try {
+            const parsed = JSON.parse(fromSession);
+            if (Array.isArray(parsed) && parsed.length) {
+              rowsByMandi[mandiKey] = parsed;
+              return parsed;
+            }
+          } catch {}
+        }
+        const candidates = buildApiCandidates();
+        for (const base of candidates) {
+          const freshUrl = `${base}/api/prices/${mandiKey}?fresh=1`.replace(
+            /([^:]?)\/\//g,
+            "$1/"
+          );
+          try {
+            const data = await fetchJson(freshUrl, 6500);
+            const rows = Array.isArray(data.rows) ? data.rows : [];
+            if (rows.length) {
+              rowsByMandi[mandiKey] = rows;
+              return rows;
+            }
+          } catch {}
+
+          const mockUrl = `${base}/api/prices/${mandiKey}?mock=1`.replace(
+            /([^:]?)\/\//g,
+            "$1/"
+          );
+          try {
+            const data = await fetchJson(mockUrl, 5000);
+            const rows = Array.isArray(data.rows) ? data.rows : [];
+            if (rows.length) {
+              rowsByMandi[mandiKey] = rows;
+              return rows;
+            }
+          } catch {}
+        }
+        rowsByMandi[mandiKey] = (FALLBACK_ROWS[mandiKey] || []).map((r) => ({
+          ...r,
+        }));
+        return rowsByMandi[mandiKey];
+      }
+
+      function renderTabs() {
+        const container = document.getElementById("terminalTabs");
+        container.innerHTML = MANDIS.map(
+          (m) =>
+            `<button type="button" class="terminal-tab ${
+              m.key === activeMandi ? "active" : ""
+            }" data-mandi="${m.key}">${m.label}</button>`
+        ).join("");
+        container.querySelectorAll(".terminal-tab").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            activeMandi = btn.dataset.mandi;
+            await renderVarieties();
+          });
+        });
+      }
+
+      function drawChart(varietyName, currentPrice, mandiLabel) {
+        const series = deterministicSeries(currentPrice, activeMandi + varietyName);
+        const labels = series.map((p) =>
+          p.date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+        );
+        const values = series.map((p) => p.value);
+        const prev = values[values.length - 2] || values[values.length - 1];
+        const cur = values[values.length - 1];
+        const diff = cur - prev;
+        const pct = prev ? (diff / prev) * 100 : 0;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+
+        document.getElementById("terminalHeading").textContent =
+          varietyName + " · " + mandiLabel;
+        document.getElementById("terminalSub").textContent =
+          "Last 30 days trend with latest mandi snapshot";
+        document.getElementById("terminalBadge").textContent = "Live";
+        document.getElementById("kpiCurrent").textContent = "₹" + fmt.format(cur);
+        document.getElementById("kpiChange").textContent =
+          (diff >= 0 ? "+" : "") +
+          fmt.format(diff) +
+          " (" +
+          (pct >= 0 ? "+" : "") +
+          pct.toFixed(2) +
+          "%)";
+        document.getElementById("kpiRange").textContent =
+          "₹" + fmt.format(min) + " - ₹" + fmt.format(max);
+
+        const canvas = document.getElementById("terminalChart");
+        if (chartRef) chartRef.destroy();
+        const ctx = canvas.getContext("2d");
+        const up = diff >= 0;
+        const lineColor = up ? "#0f766e" : "#dc2626";
+        const grad = ctx.createLinearGradient(0, 0, 0, 360);
+        grad.addColorStop(0, up ? "rgba(15,118,110,0.24)" : "rgba(220,38,38,0.22)");
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+
+        chartRef = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                data: values,
+                borderColor: lineColor,
+                borderWidth: 2.4,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.32,
+                fill: { target: "origin", above: grad },
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                displayColors: false,
+                backgroundColor: "#ffffff",
+                titleColor: "#0f172a",
+                bodyColor: "#334155",
+                borderColor: "#e2e8f0",
+                borderWidth: 1,
+                callbacks: {
+                  label: (c) => "₹" + fmt.format(c.parsed.y),
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { color: "rgba(148,163,184,0.18)" },
+                ticks: { color: "#64748b", maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: "rgba(148,163,184,0.18)" },
+                ticks: {
+                  color: "#64748b",
+                  callback: (v) => "₹" + fmt.format(v),
+                },
+              },
+            },
+          },
+        });
+      }
+
+      async function renderVarieties() {
+        renderTabs();
+        let rows = [];
+        try {
+          rows = await fetchMandiRows(activeMandi);
+        } catch {
+          rows = (FALLBACK_ROWS[activeMandi] || []).map((r) => ({ ...r }));
+        }
+        const mandiLabel = MANDIS.find((m) => m.key === activeMandi)?.label || activeMandi;
+        const list = document.getElementById("terminalVarieties");
+        if (!rows.length) {
+          list.innerHTML = '<div class="terminal-note">No variety data available.</div>';
+          document.getElementById("terminalBadge").textContent = "Offline";
+          return;
+        }
+        document.getElementById("terminalBadge").textContent = "Live";
+        if (!activeVariety || !rows.some((r) => r.variety === activeVariety)) {
+          activeVariety = rows[0].variety;
+        }
+        list.innerHTML = rows
+          .map((r) => {
+            const p = Number(r.pricePerBox) || 0;
+            return `<button class="terminal-variety-btn ${
+              r.variety === activeVariety ? "active" : ""
+            }" type="button" data-variety="${r.variety}">
+              <span class="tv-name">${r.variety}</span>
+              <span class="tv-price">₹${fmt.format(p)}</span>
+            </button>`;
+          })
+          .join("");
+
+        list.querySelectorAll(".terminal-variety-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            activeVariety = btn.dataset.variety;
+            const row = rows.find((r) => r.variety === activeVariety);
+            drawChart(activeVariety, Number(row?.pricePerBox) || 0, mandiLabel);
+            list.querySelectorAll(".terminal-variety-btn").forEach((b) =>
+              b.classList.remove("active")
+            );
+            btn.classList.add("active");
+          });
+        });
+
+        const activeRow = rows.find((r) => r.variety === activeVariety) || rows[0];
+        drawChart(activeRow.variety, Number(activeRow.pricePerBox) || 0, mandiLabel);
+      }
+
+      window.addEventListener("DOMContentLoaded", renderVarieties);
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>

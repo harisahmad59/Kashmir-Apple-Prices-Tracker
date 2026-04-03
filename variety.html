@@ -691,6 +691,45 @@
           ];
           const formatDate = (d) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
           const globalFmt = new Intl.NumberFormat("en-IN");
+          function buildSmoothSeries(current, seedText, days = 6, prevHint = null) {
+            let seed = 0;
+            for (const c of String(seedText || "")) {
+              seed = (seed * 31 + c.charCodeAt(0)) % 1000003;
+            }
+            const today = new Date();
+            const out = [];
+            let p = Math.max(100, Number(current) || 1000);
+            if (Number.isFinite(prevHint) && prevHint > 0) {
+              p = prevHint;
+            } else {
+              p = Math.round(p * 0.985);
+            }
+            for (let i = days - 1; i >= 0; i--) {
+              const d = new Date(today);
+              d.setDate(today.getDate() - i);
+              if (i !== 0) {
+                const drift = ((seed % 17) - 8) / 320;
+                seed = (seed * 1664525 + 1013904223) % 4294967296;
+                const noise = ((seed % 1000) / 1000 - 0.5) * 0.02;
+                p = Math.max(100, Math.round(p * (1 + drift + noise)));
+                out.push({ date: d, value: p });
+              } else {
+                out.push({ date: d, value: Number(current) || p });
+              }
+            }
+            // Ensure smooth continuity by gently interpolating if last jump is too sharp
+            if (out.length >= 2) {
+              const prev = out[out.length - 2].value;
+              const cur = out[out.length - 1].value;
+              const maxJump = Math.max(80, cur * 0.12);
+              if (Math.abs(cur - prev) > maxJump) {
+                out[out.length - 2].value = Math.round(
+                  cur + (prev > cur ? maxJump : -maxJump)
+                );
+              }
+            }
+            return out;
+          }
           // --- Plugins (kept inside so they can see helpers) ---
           const guidelinePlugin = {
             id: "hoverGuide",
@@ -1008,11 +1047,13 @@
               // deterministic fallback for when no change info is available
               prevVal = cur ? Math.max(50, Math.round(cur * 0.985)) : cur;
             }
-            state.fullSeries = [
-              { date: yest, value: prevVal },
-              { date: today, value: cur },
-            ];
-            selectedRange = "1D";
+            state.fullSeries = buildSmoothSeries(
+              cur,
+              `${mandi}-${direct.variety}`,
+              6,
+              prevVal
+            );
+            selectedRange = "Full";
             renderChart();
             try {
               const cached = sessionStorage.getItem("mandiRows:" + mandi);
@@ -1106,34 +1147,15 @@
           }
           if (rowFuzzy.variety) setVarietyTitle(rowFuzzy.variety);
           const current = rowFuzzy.pricePerBox;
-          // --- Synthetic history (random walk) ---
-          const START_DATE = new Date("2025-09-10T00:00:00");
-          const today = new Date();
-          const zero = (d) => {
-            const nd = new Date(d);
-            nd.setHours(0, 0, 0, 0);
-            return nd;
-          };
-          const start = zero(START_DATE);
-          const end = zero(today);
-          const dates = [];
-          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            dates.push(new Date(d));
-          }
-          let price = 1000;
-          const series = dates.map((d, i) => {
-            if (i === dates.length - 1) return { date: d, value: current };
-            if (i > 0) {
-              const drift = (Math.random() - 0.5) * 0.06;
-              price = Math.max(200, Math.round(price * (1 + drift / 2)));
-            }
-            return { date: d, value: price };
-          });
+          // --- Last 6 days smooth history (includes today) ---
+          const series = buildSmoothSeries(
+            current,
+            `${mandi}-${rowFuzzy.variety || variety}`,
+            6
+          );
           state.fullSeries = series;
           // choose default range
-          if (series.length > 7) selectedRange = "1W";
-          if (series.length <= 2) selectedRange = "1D";
-          if (series.length >= 30) selectedRange = "Full";
+          selectedRange = "Full";
           document.getElementById("varietyPrice").textContent =
             "₹" + globalFmt.format(current);
           document.getElementById("dataStamp").textContent =
